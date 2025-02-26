@@ -7,51 +7,178 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
 </head>
+	<style>
+		table {
+		  width: 100%;
+		  border-collapse: collapse;
+		  font-family: Arial, sans-serif;
+		}
+
+		thead {
+		  background-color: #007acc;
+		  color: white;
+		}
+
+		th, td {
+		  border: 1px solid #005f99;
+		  padding: 10px;
+		  text-align: center;
+		}
+
+		tbody tr:nth-child(even) {
+		  background-color: #cce5ff;
+		}
+
+		tbody tr:nth-child(odd) {
+		  background-color: #e6f2ff;
+		}
+
+		tbody tr:hover {
+		  background-color: #99ccff;
+		}
+	</style>
 <body>
     <div class="container mt-5">
-        <h1 class="text-center mb-4">Calculadora de Combinações</h1>
-        
-        <div class="card">
-            <div class="card-body">
-                <form id="formCombinacoes" onsubmit="calcularCombinacoes(event)">
-                    <div class="mb-3">
-                        <label for="numeros" class="form-label">Digite os números (separados por vírgula):</label>
-                        <input type="text" class="form-control" id="numeros" required placeholder="ex: 1,2,0">
-                        <div class="error-message" id="numerosError"></div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="tamanho" class="form-label">Tamanho do agrupamento:</label>
-                        <input type="number" class="form-control" id="tamanho" min="1" required placeholder="ex: 2">
-                        <div class="error-message" id="tamanhoError"></div>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary">Calcular Combinações</button>
-                </form>
-            </div>
-        </div>
+        <h1 class="text-center mb-4">Calculadora de Combinações (Digitos)</h1>
+					<p>A tabela abaixo mostra quantas conbinações será possivel conforme o total de digitos.</p>
+				<table>
+				  <thead>
+					<tr>
+					  <th>Nº de Dígitos</th>
+					  <th>Agrupamentos de 2</th>
+					  <th>Grupos de 6 (Mega-Sena)</th>
+					</tr>
+				  </thead>
+					  <tbody>
+							<tr>
+							  <td>2</td>
+							  <td>2</td>
+							  <td>-</td>
+							</tr>
+							<tr>
+							  <td>3</td>
+							  <td>6</td>
+							  <td>1</td>
+							</tr>
+							<tr>
+							  <td>4</td>
+							  <td>12</td>
+							  <td>2</td>
+							</tr>
+							<tr>
+							  <td>5</td>
+							  <td>20</td>
+							  <td>3</td>
+							</tr>
+							<tr>
+							  <td>6</td>
+							  <td>30</td>
+							  <td>5</td>
+							</tr>
+							<tr>
+							  <td>7</td>
+							  <td>42</td>
+							  <td>7</td>
+							</tr>
+							<tr>
+							  <td>8</td>
+							  <td>56</td>
+							  <td>9</td>
+							</tr>
+							<tr>
+							  <td>9</td>
+							  <td>72</td>
+							  <td>12</td>
+							</tr>
+							<tr>
+							  <td>10</td>
+							  <td>90</td>
+							  <td>15</td>
+							</tr>
+					  </tbody>
+				</table>
 
-        <div class="mt-4">
+				<hr /><hr />
+
+        
+<div class="card">
+    <div class="card-body">
+        <form id="formCombinacoes" onsubmit="calcularCombinacoes(event)">
+            <div class="mb-3">
+                <label for="numeros" class="form-label">Digite os números (separados por vírgula):</label>
+                <input type="text" class="form-control" id="numeros" required placeholder="ex: 1,2,0">
+                <div class="error-message" id="numerosError"></div>
+            </div>
             
-            <!--
-            <div class="alert alert-info" id="totalCombinacoes" style="display: none;">
-                Total de Combinações: <span id="total"></span>
-            </div>
-            -->
-            <div class="alert alert-info" id="totalCombinacoes" style="display: none;">
-                Total de Combinações: <span id="total" class="badge bg-primary fs-4">0</span>
+            <div class="mb-3">
+                <label for="tamanho" class="form-label">Tamanho do agrupamento:</label>
+                <!-- O tamanho do agrupamento é fixo e não pode ser alterado -->
+                <input type="number" class="form-control" id="tamanho" value="2" readonly required>
+                <div class="error-message" id="tamanhoError"></div>
             </div>
             
-            <div class="card mt-3" id="resultadoCard" style="display: none;">
-                <div class="card-header">
-                    Combinações Encontradas
-                </div>
-                <div class="card-body resultado-box">
-                    <div id="combinacoes"></div>
-                </div>
-            </div>
+            <button type="submit" class="btn btn-primary">Calcular Combinações</button>
+        </form>
+    </div>
+</div>
+
+<div class="mt-4">
+		<div class="alert alert-info" id="totalCombinacoes" style="display: none;">
+			Total de Combinações: <span id="total" class="badge bg-primary fs-4">0</span>
+		</div>
+		
+		<div class="card mt-3" id="resultadoCard" style="display: none;">
+			<div class="card-header">
+				Combinações Encontradas
+			</div>
+			<div class="card-body resultado-box">
+				<div id="combinacoes"></div>
+			</div>
+		</div>
+		
+		<hr /><hr />
+
+		<div id="palpitesControle" class="card mt-3" style="display: none;">
+		  <div class="card-header bg-success text-white">
+			Gerar Palpites para Mega Sena
+		  </div>
+		  <div class="card-body">
+			<div class="row mb-2">
+			  <div class="col-12">
+				<div class="alert alert-info p-2">
+				  <small>Com estes números é possível formar até <strong id="totalTeorico">0</strong> palpites diferentes para a Mega Sena.</small>
+				</div>
+			  </div>
+			</div>
+			<div class="row align-items-center">
+			  <div class="col-md-7">
+				<label for="quantidadePalpites" class="form-label">Quantidade de palpites a gerar:</label>
+				<input type="range" class="form-range" id="quantidadePalpites" min="1" max="100" value="10">
+				<div class="d-flex justify-content-between mt-1">
+				  <span>1</span>
+				  <span class="text-center"><span id="valorQuantidadePalpites">10</span> de <span id="valorMaximo">100</span></span>
+				  <span id="maxValue">Max</span>
+				</div>
+			  </div>
+			  <div class="col-md-5">
+				<button type="button" class="btn btn-success w-100" onclick="gerarPalpitesMegaSena()">
+				  Gerar Palpites
+				</button>
+			  </div>
+			</div>
+		  </div>
+		</div>
+
+    <!-- O card de palpites permanece o mesmo -->
+    <div class="card mt-3" id="palpitesCard" style="display: none;">
+        <div class="card-header bg-success text-white">
+            Palpites para Mega Sena (Total: <span id="totalPalpites">0</span>)
+        </div>
+        <div class="card-body resultado-box">
+            <div id="palpites"></div>
         </div>
     </div>
+</div>
 	
 	<footer>Feito por: <i>Márcio Fernando Maia -  Todos os direitos reservado - 2025</footer>
 
