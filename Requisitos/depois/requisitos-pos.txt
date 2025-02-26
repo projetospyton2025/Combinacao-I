@@ -1,36 +1,9 @@
-DE UMA OLHADA NO CODIGO REGAL ARA VER SE TA FALTANDO ALGUMA COISA...
-SE TIVER ME INFORMA E ME DE A ORIENTAÇÃO PARA AJUSTAR..
-
-A PRINCIPIO EU TE FALO QUE O CONTROLE DESLISANTE NÃO ESTÁ FUNCIONANDO
-E O NUMERO AQUI NÃO PASSA DO ZERO
-Com estes números é possível formar até 0 palpites diferentes para a Mega Sena.
-
-
-O FRONT END ESTÁ ASSIM.. 
-Calculadora de Combinações (Digitos)
-
-A tabela abaixo mostra quantas conbinações será possivel conforme o total de digitos.
-Nº de Dígitos 	Agrupamentos de 2 	Grupos de 6 (Mega-Sena)
-2 	2 	-
-3 	6 	1
-4 	12 	2
-5 	20 	3
-6 	30 	5
-7 	42 	7
-8 	56 	9
-9 	72 	12
-10 	90 	15
-Digite os números (separados por vírgula):
-Tamanho do agrupamento:
-Total de Combinações: 12
-Combinações Encontradas
-01 02 03 10 12 13 20 21 23 30 31 32
-Gerar Palpites para Mega Sena
-Com estes números é possível formar até 0 palpites diferentes para a Mega Sena.
-Quantidade de palpites a gerar:
-1 1 de 0 Max
-
-
+VAMOS FAZER O SEGUINTE
+AJUSTE PARA MIM A TABELA (QUE VAI APARECER NO FRONTE END)
+O MODAL... SEM ALTERAR A LOGICA QUE ESTÁ FUNCIONANDO.. OK.. TUDO BEM...
+TRAGA OS ARQUIVOS SEPARADO.. OU SEJA AJUSTE ESTE CÓDIGO PARA MIM..  
+ 
+ 
  
  Diretório: J:\Meu Drive\ProjetosPython\Loterias\Combinacoes\Combinacao-I
 
@@ -52,7 +25,6 @@ d-----        23/02/2025     05:58                static
 ------        23/02/2025     05:58             59 .env
 ------        23/02/2025     06:36           2619 app.py.bak
 ------        23/02/2025     06:46           1656 README.md.bak
-
 from flask import Flask, render_template, request, jsonify
 import itertools
 from typing import List, Set
@@ -273,7 +245,7 @@ def gerar_palpites():
     try:
         dados = request.get_json()
         combinacoes_formatadas = dados.get("combinacoes", [])
-        total_palpites = int(dados.get("total_palpites", 10))
+        total_palpites = int(dados.get("quantidade", 10)) # Mudou "total_palpites" para "quantidade"
         
         app.logger.info(f'Gerando {total_palpites} palpites para a Mega Sena.')
         
@@ -286,7 +258,7 @@ def gerar_palpites():
         
         app.logger.info(f'Gerados {len(palpites)} palpites')
         
-        return jsonify({"total_palpites": len(palpites), "palpites": palpites})
+        return jsonify({"total": len(palpites), "palpites": palpites})# Mudou "total_palpites" para "total"
     
     except Exception as e:
         app.logger.error(f'Erro inesperado ao gerar palpites: {str(e)}')
@@ -301,6 +273,7 @@ if __name__ == "__main__":
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
+	
 	// Função para calcular o número total de combinações possíveis
 function calcularTotalCombinacoesPossiveis(n, r) {
   // Função para calcular fatorial (limita a números menores para evitar overflow)
@@ -333,6 +306,30 @@ function calcularTotalCombinacoesPossiveis(n, r) {
   } else {
     return Math.floor(fatorial(n) / (fatorial(r) * fatorial(n - r)));
   }
+}
+
+// Função auxiliar para extrair números da lista de combinações formatadas
+function extrairNumerosUnicos(combinacoes) {
+  const numerosUnicos = new Set();
+  
+  for (const combinacao of combinacoes) {
+    // Tentar extrair números de 2 dígitos da combinação
+    let i = 0;
+    while (i < combinacao.length) {
+      if (i + 1 < combinacao.length) {
+        try {
+          const numStr = combinacao.substring(i, i+2);
+          const numero = parseInt(numStr);
+          if (numero >= 1 && numero <= 60) {
+            numerosUnicos.add(numero);
+          }
+        } catch (e) {}
+      }
+      i += 2;
+    }
+  }
+  
+  return [...numerosUnicos];
 }
 
 // Modifique a função calcularCombinacoes para usar o cálculo total de combinações
@@ -377,15 +374,18 @@ async function calcularCombinacoes(event) {
                 palpitesControle.style.display = "block";
                 
                 // Calcular o total teórico de palpites possíveis
-                // Um conjunto de n números pode gerar C(n,6) palpites da Mega Sena
-                const numerosUnicos = new Set(digitos.map(n => parseInt(n))).size;
-                const totalTeorico = calcularTotalCombinacoesPossiveis(numerosUnicos, 6);
+                // Primeiro extrair os números únicos das combinações geradas
+                const numerosUnicosArray = extrairNumerosUnicos(data.combinacoes);
+                console.log("Números únicos extraídos:", numerosUnicosArray);
+                
+                const totalTeorico = calcularTotalCombinacoesPossiveis(numerosUnicosArray.length, 6);
+                console.log("Total teórico calculado:", totalTeorico);
                 
                 // Mostrar o total teórico na interface
                 document.getElementById("totalTeorico").textContent = totalTeorico;
                 
                 // Ajustar o range para o total teórico (com limite prático de 1000 para não travar a interface)
-                const limiteMaximo = Math.min(1000, totalTeorico);
+                const limiteMaximo = Math.min(1000, Math.max(1, totalTeorico));
                 const rangeInput = document.getElementById("quantidadePalpites");
                 rangeInput.max = limiteMaximo;
                 rangeInput.value = Math.min(10, limiteMaximo);
@@ -407,7 +407,6 @@ async function calcularCombinacoes(event) {
     }
 }
 
-// Função para gerar palpites para a Mega Sena
 async function gerarPalpitesMegaSena() {
     // Verificar se temos combinações geradas
     if (!window.combinacoesGeradas || window.combinacoesGeradas.length === 0) {
@@ -557,66 +556,73 @@ window.combinacoesGeradas = [];
     <div class="container mt-5">
         <h1 class="text-center mb-4">Calculadora de Combinações (Digitos)</h1>
 					<p>A tabela abaixo mostra quantas conbinações será possivel conforme o total de digitos.</p>
-				<table>
-				  <thead>
-					<tr>
-					  <th>Nº de Dígitos</th>
-					  <th>Agrupamentos de 2</th>
-					  <th>Grupos de 6 (Mega-Sena)</th>
-					</tr>
-				  </thead>
-					  <tbody>
-							<tr>
-							  <td>2</td>
-							  <td>2</td>
-							  <td>-</td>
-							</tr>
-							<tr>
-							  <td>3</td>
-							  <td>6</td>
-							  <td>1</td>
-							</tr>
-							<tr>
-							  <td>4</td>
-							  <td>12</td>
-							  <td>2</td>
-							</tr>
-							<tr>
-							  <td>5</td>
-							  <td>20</td>
-							  <td>3</td>
-							</tr>
-							<tr>
-							  <td>6</td>
-							  <td>30</td>
-							  <td>5</td>
-							</tr>
-							<tr>
-							  <td>7</td>
-							  <td>42</td>
-							  <td>7</td>
-							</tr>
-							<tr>
-							  <td>8</td>
-							  <td>56</td>
-							  <td>9</td>
-							</tr>
-							<tr>
-							  <td>9</td>
-							  <td>72</td>
-							  <td>12</td>
-							</tr>
-							<tr>
-							  <td>10</td>
-							  <td>90</td>
-							  <td>15</td>
-							</tr>
-					  </tbody>
-				</table>
-
-
-
-        
+		<table>
+		  <thead>
+			<tr>
+			  <th>Nº de Dígitos</th>
+			  <th>Agrupamentos de 2</th>
+			  <th>Palpites (Mega Sena)</th>
+			</tr>
+		  </thead>
+		  <tbody>
+			<tr>
+			  <td>2</td>
+			  <td>2</td>
+			  <td>-</td>
+			</tr>
+			<tr>
+			  <td>3</td>
+			  <td>6</td>
+			  <td>1</td>
+			</tr>
+			<tr>
+			  <td>4</td>
+			  <td>12</td>
+			  <td>2</td>
+			</tr>
+			<tr>
+			  <td>5</td>
+			  <td>20</td>
+			  <td>3</td>
+			</tr>
+			<tr>
+			  <td>6</td>
+			  <td>30</td>
+			  <td>5</td>
+			</tr>
+			<tr>
+			  <td>7</td>
+			  <td>42</td>
+			  <td>7</td>
+			</tr>
+			<tr>
+			  <td>8</td>
+			  <td>56</td>
+			  <td>28</td>
+			</tr>
+			<tr>
+			  <td>9</td>
+			  <td>72</td>
+			  <td>84</td>
+			</tr>
+			<tr>
+			  <td>10</td>
+			  <td>90</td>
+			  <td>210</td>
+			</tr>
+			<tr>
+			  <td>11</td>
+			  <td>110</td>
+			  <td>462</td>
+			</tr>
+			<tr>
+			  <td>12</td>
+			  <td>132</td>
+			  <td>924</td>
+			</tr>
+		  </tbody>
+		</table>
+			<hr /><hr />
 <div class="card">
     <div class="card-body">
         <form id="formCombinacoes" onsubmit="calcularCombinacoes(event)">
@@ -651,6 +657,8 @@ window.combinacoesGeradas = [];
 				<div id="combinacoes"></div>
 			</div>
 		</div>
+		
+		<hr /><hr />
 
 		<div id="palpitesControle" class="card mt-3" style="display: none;">
 		  <div class="card-header bg-success text-white">
@@ -734,6 +742,9 @@ footer {
             margin-bottom: auto;
             margin-top: 10px; /* Espaço acima do rodapé */
          }
+		 
+		 
+
 @media only screen and (max-width: 600px) {
           .card-body {
             text-align: center;
@@ -749,8 +760,4 @@ footer {
           }
         }
         
-        flask==2.0.1
-python-dotenv==0.19.0
-Werkzeug==2.0.1
-
-	
+        
