@@ -5,7 +5,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 import os
 import random
-import time  # Para o caso de uso de sleep no código
+import time  # Para o caso de uso de sleep no código 2
 
 app = Flask(__name__)
 
@@ -21,28 +21,24 @@ app.logger.addHandler(file_handler)
 app.logger.setLevel(logging.INFO)
 app.logger.info('Iniciando aplicação de combinações')
 
+# Substitua a função gerar_combinacoes com esta implementação:
 def gerar_combinacoes(numeros: List[int], tamanho: int) -> Set[tuple]:
     """
     Gera combinações normais e adiciona combinações gêmeas.
     """
-    # Gerar combinações normais usando permutações dos números originais
+    # Gerar combinações normais usando os números originais
     combinacoes = set(itertools.permutations(numeros, tamanho))
     
-    # Adicionar combinações gêmeas (onde os dois dígitos são iguais)
+    # Adicionar combinações gêmeas (11, 22, etc) para cada dígito
     for num in numeros:
         if 1 <= num <= 9:
-            gemeo = (num, num)  # Por exemplo, (1,1) para formar "11"
+            # Criar um par de dígitos gêmeos
+            gemeo = (num, num)
             combinacoes.add(gemeo)
     
     return combinacoes
 
-def formatar_numero(combinacao: tuple) -> str:
-    """Formata uma combinação como uma string de dígitos concatenados."""
-    return "".join(map(str, combinacao))
 
-@app.route("/")
-def index():
-    return render_template("index.html")
 
 @app.route("/calcular", methods=["POST"])
 def calcular():
@@ -58,8 +54,15 @@ def calcular():
             app.logger.warning('Dados inválidos recebidos')
             return jsonify({"erro": "Dados inválidos"}), 400
         
-        # Processamento dos números - CORRIGIDO: removida a adição de gêmeos aqui
-        numeros = [int(n.strip()) for n in numeros_str.split(",")]
+        # Processamento dos números - adicionando números gêmeos
+        numeros_base = [int(n.strip()) for n in numeros_str.split(",")]
+        numeros = list(numeros_base)  # Começamos com os números originais
+        
+        # Para cada dígito de 1-9, adiciona seu gêmeo à lista
+        for digito in numeros_base:
+            if 1 <= digito <= 9:
+                numero_gemeo = digito * 11  # Cria o número gêmeo (ex: 1 -> 11, 2 -> 22)
+                numeros.append(numero_gemeo)
         
         # Cálculo das combinações
         combinacoes = gerar_combinacoes(numeros, tamanho)
@@ -79,6 +82,16 @@ def calcular():
     except Exception as e:
         app.logger.error(f'Erro inesperado: {str(e)}')
         return jsonify({"erro": f"Erro inesperado: {str(e)}"}), 500
+        
+        
+def formatar_numero(combinacao: tuple) -> str:
+    """Formata uma combinação como uma string de dois dígitos."""
+    return "".join(map(str, combinacao))
+
+
+@app.route("/")
+def index():
+    return render_template("index.html")
 
 # Função otimizada de gerar palpites para a Mega Sena
 def gerar_palpites_mega_sena(combinacoes_formatadas, total_palpites=10):
@@ -221,6 +234,7 @@ def gerar_palpites_grande_quantidade(numeros_disponiveis, total_palpites):
     
     return palpites
 
+
 @app.route("/gerar_palpites", methods=["POST"])
 def gerar_palpites():
     try:
@@ -244,6 +258,7 @@ def gerar_palpites():
     except Exception as e:
         app.logger.error(f'Erro inesperado ao gerar palpites: {str(e)}')
         return jsonify({"erro": f"Erro inesperado: {str(e)}"}), 500
+
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))

@@ -1,3 +1,19 @@
+Quando o usuário digita "1,2", quais são EXATAMENTE todas as combinações que você espera que sejam geradas pelo sistema?
+11, 12, 13, 21, 22, 23, 31, 32, 33
+
+"1,2,3":
+ELE DIGITOU
+ENTÃO 
+11 PORQUE TEM 1
+22 PORQUE TEM 2
+33 PQ TEM 3
+
+Os números gêmeos (11, 22, etc.) devem substituir os números originais ou devem ser adicionados a eles? 
+DEVEM SER ADICIONADOS A COMBINAÇÕES COMO ACIMA
+
+Pode confirmar se o tamanho do agrupamento será sempre 2, como mostrado nos seus exemplos?
+SIM SERÁ SEMPRE DOIS
+
 
  Diretório: J:\Meu Drive\ProjetosPython\Loterias\Combinacoes\Combinacao-I
 
@@ -20,6 +36,7 @@ d-----        23/02/2025     05:58                static
 ------        23/02/2025     06:36           2619 app.py.bak
 ------        23/02/2025     06:46           1656 README.md.bak
 
+
 from flask import Flask, render_template, request, jsonify
 import itertools
 from typing import List, Set
@@ -28,6 +45,7 @@ from logging.handlers import RotatingFileHandler
 import os
 import random
 import time  # Para o caso de uso de sleep no código 2
+
 
 app = Flask(__name__)
 
@@ -43,24 +61,17 @@ app.logger.addHandler(file_handler)
 app.logger.setLevel(logging.INFO)
 app.logger.info('Iniciando aplicação de combinações')
 
-# Substitua a função gerar_combinacoes com esta implementação:
 def gerar_combinacoes(numeros: List[int], tamanho: int) -> Set[tuple]:
-    """
-    Gera combinações normais e adiciona combinações gêmeas.
-    """
-    # Gerar combinações normais usando os números originais
-    combinacoes = set(itertools.permutations(numeros, tamanho))
-    
-    # Adicionar combinações gêmeas (11, 22, etc) para cada dígito
-    for num in numeros:
-        if 1 <= num <= 9:
-            # Criar um par de dígitos gêmeos
-            gemeo = (num, num)
-            combinacoes.add(gemeo)
-    
-    return combinacoes
+    """Gera todas as combinações possíveis dos números dados."""
+    return set(itertools.permutations(numeros, tamanho))
 
+def formatar_numero(combinacao: tuple) -> str:
+    """Formata uma combinação como uma string de dois dígitos."""
+    return "".join(map(str, combinacao))
 
+@app.route("/")
+def index():
+    return render_template("index.html")
 
 @app.route("/calcular", methods=["POST"])
 def calcular():
@@ -76,15 +87,8 @@ def calcular():
             app.logger.warning('Dados inválidos recebidos')
             return jsonify({"erro": "Dados inválidos"}), 400
         
-        # Processamento dos números - adicionando números gêmeos
-        numeros_base = [int(n.strip()) for n in numeros_str.split(",")]
-        numeros = list(numeros_base)  # Começamos com os números originais
-        
-        # Para cada dígito de 1-9, adiciona seu gêmeo à lista
-        for digito in numeros_base:
-            if 1 <= digito <= 9:
-                numero_gemeo = digito * 11  # Cria o número gêmeo (ex: 1 -> 11, 2 -> 22)
-                numeros.append(numero_gemeo)
+        # Processamento dos números
+        numeros = [int(n.strip()) for n in numeros_str.split(",")]
         
         # Cálculo das combinações
         combinacoes = gerar_combinacoes(numeros, tamanho)
@@ -104,16 +108,7 @@ def calcular():
     except Exception as e:
         app.logger.error(f'Erro inesperado: {str(e)}')
         return jsonify({"erro": f"Erro inesperado: {str(e)}"}), 500
-        
-        
-def formatar_numero(combinacao: tuple) -> str:
-    """Formata uma combinação como uma string de dois dígitos."""
-    return "".join(map(str, combinacao))
 
-
-@app.route("/")
-def index():
-    return render_template("index.html")
 
 # Função otimizada de gerar palpites para a Mega Sena
 def gerar_palpites_mega_sena(combinacoes_formatadas, total_palpites=10):
@@ -282,12 +277,16 @@ def gerar_palpites():
         return jsonify({"erro": f"Erro inesperado: {str(e)}"}), 500
 
 
+"""
+if __name__ == "__main__":
+    app.run(debug=True)
+"""
+
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
-
-
-// Função para calcular o número total de combinações possíveis
+	
+	// Função para calcular o número total de combinações possíveis
 function calcularTotalCombinacoesPossiveis(n, r) {
   // Função para calcular fatorial (limita a números menores para evitar overflow)
   function fatorial(num) {
@@ -1093,7 +1092,6 @@ document.addEventListener('keydown', function(event) {
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
-
 .resultado-box {
   max-height: 300px;
   overflow-y: auto;
@@ -1258,10 +1256,10 @@ footer {
 		tbody tr:hover {
 		  background-color: #99ccff;
 		}
-
 flask==2.0.1
 python-dotenv==0.19.0
 Werkzeug==2.0.1
+
 
 FLASK_APP=app.py
 FLASK_ENV=development
