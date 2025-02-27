@@ -57,33 +57,29 @@ function extrairNumerosUnicos(combinacoes) {
 }
 
 // Modifique a função calcularCombinacoes para usar o cálculo total de combinações
-// Função para calcular combinações
 async function calcularCombinacoes(event) {
     event.preventDefault();
     
-    // Obter os valores do formulário
-    const numerosInput = document.getElementById("numeros").value;
+    const numeros = document.getElementById("numeros").value;
     const tamanho = document.getElementById("tamanho").value;
     
-    // Processar os números inputados pelo usuário
-    // Os números serão enviados como estão para o backend, que lidará com a lógica dos gêmeos
     try {
         const response = await fetch("/calcular", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ numeros: numerosInput, tamanho })
+            body: JSON.stringify({ numeros, tamanho })
         });
         
         const data = await response.json();
         
         if (response.ok) {
-            // Exibe o total de combinações
+            // Exibe o total
             document.getElementById("totalCombinacoes").style.display = "block";
             document.getElementById("total").textContent = data.total;
             
-            // Exibe as combinações geradas
+            // Exibe as combinações
             const combinacoesDiv = document.getElementById("combinacoes");
             combinacoesDiv.innerHTML = data.combinacoes.join(" ");
             document.getElementById("resultadoCard").style.display = "block";
@@ -134,7 +130,6 @@ async function calcularCombinacoes(event) {
         console.error(error);
     }
 }
-
 
 async function gerarPalpitesMegaSena() {
     // Verificar se temos combinações geradas
