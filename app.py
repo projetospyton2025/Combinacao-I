@@ -44,6 +44,7 @@ def formatar_numero(combinacao: tuple) -> str:
 def index():
     return render_template("index.html")
 
+
 @app.route("/calcular", methods=["POST"])
 def calcular():
     try:
@@ -58,19 +59,41 @@ def calcular():
             app.logger.warning('Dados inválidos recebidos')
             return jsonify({"erro": "Dados inválidos"}), 400
         
-        # Processamento dos números - CORRIGIDO: removida a adição de gêmeos aqui
-        numeros = [int(n.strip()) for n in numeros_str.split(",")]
+        # Validar dígitos únicos
+        valido, msg_erro = validar_digitos_unicos(numeros_str)
+        if not valido:
+            app.logger.warning(f'Validação de dígitos falhou: {msg_erro}')
+            return jsonify({"erro": msg_erro}), 400
+        
+        # Processamento dos números - agora garantimos que são dígitos únicos
+        numeros = [int(n.strip()) for n in numeros_str.split(",") if n.strip()]
         
         # Cálculo das combinações
         combinacoes = gerar_combinacoes(numeros, tamanho)
         combinacoes_formatadas = [formatar_numero(c) for c in combinacoes]
-        combinacoes_formatadas.sort()
         
-        app.logger.info(f'Geradas {len(combinacoes)} combinações')
+        # Filtrar combinações que resultam em números maiores que 60 (limite da Mega Sena)
+        combinacoes_filtradas = []
+        for comb in combinacoes_formatadas:
+            try:
+                num = int(comb)
+                if 1 <= num <= 60:  # Intervalo válido para Mega Sena
+                    combinacoes_filtradas.append(comb)
+            except ValueError:
+                pass  # Ignorar valores que não podem ser convertidos para int
+                
+        # Ordenar numericamente
+        combinacoes_filtradas.sort(key=lambda x: int(x))
+        
+        # Registrar quantas combinações foram filtradas
+        total_combinacoes = len(combinacoes_formatadas)
+        total_filtradas = len(combinacoes_filtradas)
+        app.logger.info(f'Geradas {total_combinacoes} combinações, {total_filtradas} após filtrar números > 60')
         
         return jsonify({
-            "total": len(combinacoes),
-            "combinacoes": combinacoes_formatadas
+            "total": total_filtradas,
+            "combinacoes": combinacoes_filtradas,
+            "formatado_para_excel": True
         })
         
     except ValueError as e:
@@ -79,6 +102,9 @@ def calcular():
     except Exception as e:
         app.logger.error(f'Erro inesperado: {str(e)}')
         return jsonify({"erro": f"Erro inesperado: {str(e)}"}), 500
+
+
+
 
 # Função otimizada de gerar palpites para a Mega Sena
 def gerar_palpites_mega_sena(combinacoes_formatadas, total_palpites=10):
@@ -244,6 +270,27 @@ def gerar_palpites():
     except Exception as e:
         app.logger.error(f'Erro inesperado ao gerar palpites: {str(e)}')
         return jsonify({"erro": f"Erro inesperado: {str(e)}"}), 500
+        
+def validar_digitos_unicos(numeros_str):
+    """
+    Valida se a entrada contém apenas dígitos únicos (0-9) separados por vírgula.
+    """
+    # Remover espaços em branco
+    numeros_str = numeros_str.replace(" ", "")
+    
+    # Verificar se contém apenas dígitos e vírgulas
+    import re
+    if not re.match(r'^[0-9,]*$', numeros_str):
+        return False, "Entrada deve conter apenas dígitos (0-9) e vírgulas."
+    
+    # Verificar se cada elemento é um único dígito
+    elementos = numeros_str.split(",")
+    for elem in elementos:
+        if len(elem) > 1:
+            return False, "Cada elemento deve ser um único dígito (0-9)."
+    
+    return True, ""       
+        
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))

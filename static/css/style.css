@@ -8,6 +8,35 @@
   line-height: 2; /* Espaçamento entre linhas */
 }
 
+/* Estilo para tabela Excel */
+.resultado-box table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.resultado-box table td {
+  border: 1px solid #ddd;
+  text-align: center;
+  padding: 8px;
+  width: 16.66%; /* Para 6 colunas */
+}
+
+.celula-excel {
+  user-select: all; /* Facilita a seleção do conteúdo */
+  cursor: pointer;
+}
+
+.celula-excel:hover {
+  background-color: #e9ecef;
+}
+
+/* Estilo para mensagens de erro */
+.error-message {
+  color: #dc3545;
+  margin-top: 5px;
+  display: none;
+}
+
 .numero {
   display: inline-block;
   padding: 5px 10px;
@@ -36,20 +65,6 @@ footer {
   margin-top: 10px; /* Espaço acima do rodapé */
 }
 
-@media only screen and (max-width: 600px) {
-  .card-body {
-    text-align: center;
-  }
-
-  button {
-    display: inline-block;
-  }
-
-  footer {
-    color: #f00303;
-    font-style: italic;
-  }
-}
 
 /* Estilos para o modal da tabela completa */
 .modal-tabela {
@@ -127,4 +142,70 @@ tbody tr:nth-child(odd) {
 
 tbody tr:hover {
   background-color: #99ccff;
+}
+/* Estilos para a tabela Excel */
+.tabela-excel {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  table-layout: fixed; /* Garante que todas as células tenham a mesma largura */
+}
+
+.tabela-excel td {
+  border: 1px solid #ddd;
+  text-align: center;
+  padding: 8px;
+  width: 16.66%; /* Exatamente 6 colunas de tamanho igual */
+  height: 40px;
+  vertical-align: middle;
+  font-weight: 500;
+  font-family: 'Courier New', monospace; /* Para melhor alinhamento */
+}
+
+/* Estilo especial para facilitar a seleção do conteúdo */
+.celula-excel {
+  user-select: all; /* Facilita a seleção do conteúdo */
+  cursor: pointer;
+  position: relative;
+}
+
+/* Feedback visual ao passar o mouse */
+.celula-excel:hover {
+  background-color: #e9ecef;
+}
+
+/* Estilo para quando a célula é clicada (selecionada) */
+.celula-excel:active {
+  background-color: #c0d8e8;
+}
+
+/* Estilos para as mensagens de erro */
+.error-message {
+  color: #dc3545;
+  margin-top: 5px;
+  font-size: 0.9rem;
+  display: none;
+  padding: 5px;
+  border-radius: 3px;
+  background-color: rgba(220, 53, 69, 0.1);
+}
+#tamanho {
+    background-color: #f8f9fa;
+    cursor: not-allowed;
+}
+
+
+@media only screen and (max-width: 600px) {
+  .card-body {
+    text-align: center;
+  }
+
+  button {
+    display: inline-block;
+  }
+
+  footer {
+    color: #f00303;
+    font-style: italic;
+  }
 }

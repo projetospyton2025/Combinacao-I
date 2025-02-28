@@ -1,4 +1,23 @@
-﻿// Função para calcular o número total de combinações possíveis
+﻿// Inicializar a validação quando o documento estiver carregado
+document.addEventListener("DOMContentLoaded", function() {
+    validarEntradaDigitos();
+    
+    // Também adicionar mensagem de instrução inicial
+    const inputDigitos = document.getElementById("numeros");
+    inputDigitos.setAttribute("placeholder", "ex: 0,1,2,3,4,5,6");
+    
+    // Exibir a div de erro (inicialmente escondida)
+    const errorDiv = document.getElementById("numerosError");
+    if (!errorDiv) {
+        // Se não existir, criar a div
+        const div = document.createElement("div");
+        div.id = "numerosError";
+        div.className = "error-message";
+        inputDigitos.parentNode.insertBefore(div, inputDigitos.nextSibling);
+    }
+});
+
+// Função para calcular o número total de combinações possíveis
 function calcularTotalCombinacoesPossiveis(n, r) {
   // Função para calcular fatorial (limita a números menores para evitar overflow)
   function fatorial(num) {
@@ -57,6 +76,7 @@ function extrairNumerosUnicos(combinacoes) {
 }
 
 // Função para calcular combinações
+// Função atualizada para calcular combinações
 async function calcularCombinacoes(event) {
     event.preventDefault();
     
@@ -75,17 +95,28 @@ async function calcularCombinacoes(event) {
         const data = await response.json();
         
         if (response.ok) {
-            // Exibe o total
-            document.getElementById("totalCombinacoes").style.display = "block";
-            document.getElementById("total").textContent = data.total;
+            // Filtrar novamente para garantir que não exibimos números acima de 60
+            const combinacoesFiltradas = data.combinacoes.filter(comb => {
+                const num = parseInt(comb);
+                return num > 0 && num <= 60;
+            });
             
-            // Exibe as combinações
+            // Exibe o total após filtragem
+            document.getElementById("totalCombinacoes").style.display = "block";
+            document.getElementById("total").textContent = combinacoesFiltradas.length;
+            
+            // Exibe as combinações no formato de tabela para Excel
             const combinacoesDiv = document.getElementById("combinacoes");
-            combinacoesDiv.innerHTML = data.combinacoes.join(" ");
+            combinacoesDiv.innerHTML = "";
+            
+            // Usar a função para criar a tabela formatada para Excel
+            const tabela = criarTabelaCombinacoes(combinacoesFiltradas);
+            combinacoesDiv.appendChild(tabela);
+            
             document.getElementById("resultadoCard").style.display = "block";
             
-            // Armazenar as combinações para uso posterior
-            window.combinacoesGeradas = data.combinacoes;
+            // Armazenar as combinações filtradas para uso posterior
+            window.combinacoesGeradas = combinacoesFiltradas;
             
             // Verificar se deve mostrar os controles de palpites
             const digitosInput = document.getElementById("numeros").value;
@@ -94,19 +125,22 @@ async function calcularCombinacoes(event) {
             
             // Mostrar controles apenas se tivermos 4 ou mais dígitos
             const palpitesControle = document.getElementById("palpitesControle");
-            if (quantidadeDigitos >= 4 && data.total >= 12) {
+            if (quantidadeDigitos >= 4 && combinacoesFiltradas.length >= 12) {
                 palpitesControle.style.display = "block";
                 
                 // Calcular o total teórico de palpites possíveis
                 // Primeiro extrair os números únicos das combinações geradas
-                const numerosUnicosArray = extrairNumerosUnicos(data.combinacoes);
+                const numerosUnicosArray = extrairNumerosUnicos(combinacoesFiltradas);
                 console.log("Números únicos extraídos:", numerosUnicosArray);
                 
-                const totalTeorico = calcularTotalCombinacoesPossiveis(numerosUnicosArray.length, 6);
+                // Filtrar números maiores que 60 (limite da Mega Sena)
+                const numerosFiltrados = numerosUnicosArray.filter(n => n <= 60);
+                
+                const totalTeorico = calcularTotalCombinacoesPossiveis(numerosFiltrados.length, 6);
                 console.log("Total teórico calculado:", totalTeorico);
                 
                 // Mostrar o total teórico na interface
-                document.getElementById("totalTeorico").textContent = totalTeorico;
+                document.getElementById("totalTeorico").textContent = totalTeorico.toLocaleString('pt-BR');
                 
                 // Ajustar o range para o total teórico (com limite prático de 1000 para não travar a interface)
                 const limiteMaximo = Math.min(1000, Math.max(1, totalTeorico));
@@ -116,7 +150,7 @@ async function calcularCombinacoes(event) {
                 document.getElementById("valorQuantidadePalpites").textContent = rangeInput.value;
                 
                 // Atualizar o texto do máximo
-                document.getElementById("valorMaximo").textContent = limiteMaximo;
+                document.getElementById("valorMaximo").textContent = limiteMaximo.toLocaleString('pt-BR');
             } else {
                 palpitesControle.style.display = "none";
                 // Esconder o container de palpites caso esteja visível
@@ -130,6 +164,7 @@ async function calcularCombinacoes(event) {
         console.error(error);
     }
 }
+
 
 async function gerarPalpitesMegaSena() {
     // Verificar se temos combinações geradas
@@ -298,3 +333,98 @@ document.addEventListener('keydown', function(event) {
 
 // Certifique-se de que esta variável global é inicializada
 window.combinacoesGeradas = [];
+
+
+
+// Adicione esta função no seu arquivo script.js
+// Função para validar entrada de dígitos
+function validarEntradaDigitos() {
+    const inputDigitos = document.getElementById("numeros");
+    const errorDiv = document.getElementById("numerosError");
+    
+    // Validar o padrão enquanto o usuário digita
+    inputDigitos.addEventListener("input", function(e) {
+        const valor = e.target.value;
+        
+        // Remover espaços em branco
+        const valorSemEspacos = valor.replace(/\s/g, "");
+        
+        // Verificar se contém apenas dígitos (0-9) e vírgulas
+        const regex = /^[0-9,]*$/;
+        if (!regex.test(valorSemEspacos)) {
+            errorDiv.textContent = "Por favor, insira apenas dígitos (0-9) separados por vírgulas.";
+            errorDiv.style.display = "block";
+            return;
+        }
+        
+        // Verificar se tem números de dois dígitos (sem vírgula entre eles)
+        const digitos = valorSemEspacos.split(",");
+        for (const digito of digitos) {
+            if (digito.length > 1) {
+                errorDiv.textContent = "Cada dígito deve ser separado por vírgula. Insira apenas um dígito por vez (0-9).";
+                errorDiv.style.display = "block";
+                return;
+            }
+        }
+        
+        // Se passou em todas as validações
+        errorDiv.style.display = "none";
+    });
+}
+
+// Função para criar tabela formatada para Excel
+function criarTabelaCombinacoes(combinacoes) {
+    // Filtrar para remover completamente números acima de 60
+    const combinacoesFiltradas = combinacoes.filter(comb => {
+        const num = parseInt(comb);
+        return num > 0 && num <= 60; // Garantir que esteja no intervalo 1-60
+    });
+    
+    // Ordenar numericamente (não alfabeticamente)
+    combinacoesFiltradas.sort((a, b) => parseInt(a) - parseInt(b));
+    
+    // Configurar tabela com exatos 6 números por linha (padrão Mega Sena)
+    const numeroColunas = 6;
+    const numeroLinhas = Math.ceil(combinacoesFiltradas.length / numeroColunas);
+    
+    const tabela = document.createElement('table');
+    tabela.className = 'table table-bordered tabela-excel';
+    
+    const tbody = document.createElement('tbody');
+    let index = 0;
+    
+    for (let i = 0; i < numeroLinhas; i++) {
+        const row = document.createElement('tr');
+        
+        for (let j = 0; j < numeroColunas; j++) {
+            const cell = document.createElement('td');
+            
+            if (index < combinacoesFiltradas.length) {
+                const num = parseInt(combinacoesFiltradas[index]);
+                
+                // Formatar com zero à esquerda para números < 10
+                cell.textContent = num < 10 ? `0${num}` : num;
+                cell.className = 'celula-excel';
+            } else {
+                // Célula vazia para completar a linha
+                cell.innerHTML = '&nbsp;';
+            }
+            
+            row.appendChild(cell);
+            index++;
+        }
+        
+        tbody.appendChild(row);
+    }
+    
+    tabela.appendChild(tbody);
+    return tabela;
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    // Garantir que o tamanho do agrupamento seja fixo em 2
+    const tamanhoInput = document.getElementById("tamanho");
+    tamanhoInput.value = "2";
+    tamanhoInput.setAttribute("readonly", "readonly");
+    tamanhoInput.style.backgroundColor = "#f8f9fa"; // Fundo cinza para indicar que é somente leitura
+});
