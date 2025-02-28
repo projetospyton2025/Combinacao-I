@@ -123,6 +123,84 @@ por exemplo 0,1 ou 0,3,6,9 ou 3,9,4, mas nunca "0,1,2,3,4,5,6,7,8,9,1,2,3"
  
  
  
+ Como Testar a Nova Validação
+Após implementar as alterações, teste os seguintes cenários:
+
+Duplicação de dígitos:
+
+Digite 0,1,2,3,4,5,6,7,8,9,1,2,3
+Deve mostrar o erro: "Não é permitido repetir dígitos. Use cada dígito apenas uma vez."
+
+
+Dígitos inválidos:
+
+Digite 0,1,2,3,45,6
+Deve mostrar o erro: "Cada elemento deve ser um único dígito (0-9)."
+
+
+Entrada correta:
+
+Digite 0,1,2,3,4,5
+Deve processar normalmente e mostrar os resultados.
+
+
+Verificar tamanho fixo:
+
+Certifique-se de que o campo "Tamanho do agrupamento" mostra o valor 2 e não pode ser alterado.
+
+
+
+Verificação Final
+Com essas alterações, o sistema agora:
+✅ Valida que cada dígito está no intervalo de 0 a 9
+✅ Impede a entrada de dígitos duplicados
+✅ Mantém o tamanho do agrupamento fixo em 2
+✅ Formata a tabela com 6 colunas conforme necessário
+✅ Exibe apenas números de 1 a 60 nos resultados
+✅ Formata números menores que 10 com zero à esquerda (01, 02, etc.)
+ 
+ 
+ Como Testar a Nova Validação
+Após implementar as alterações, teste os seguintes cenários:
+
+Duplicação de dígitos:
+
+Digite 0,1,2,3,4,5,6,7,8,9,1,2,3
+Deve mostrar o erro: "Não é permitido repetir dígitos. Use cada dígito apenas uma vez."
+OK 
+
+
+Dígitos inválidos:
+
+Digite 0,1,2,3,45,6
+Deve mostrar o erro: "Cada elemento deve ser um único dígito (0-9)."
+OK
+
+Entrada correta:
+
+Digite 0,1,2,3,4,5
+Deve processar normalmente e mostrar os resultados.
+OK
+
+Verificar tamanho fixo:
+
+Certifique-se de que o campo "Tamanho do agrupamento" mostra o valor 2 e não pode ser alterado.
+
+
+
+Verificação Final
+Com essas alterações, o sistema agora:
+✅ Valida que cada dígito está no intervalo de 0 a 9
+✅ Impede a entrada de dígitos duplicados
+✅ Mantém o tamanho do agrupamento fixo em 2
+✅ Formata a tabela com 6 colunas conforme necessário
+✅ Exibe apenas números de 1 a 60 nos resultados
+✅ Formata números menores que 10 com zero à esquerda (01, 02, etc.)
+ 
+ 
+ 
+ 
+ 
  Diretório: J:\Meu Drive\ProjetosPython\Loterias\Combinacoes\Combinacao-I
 
 

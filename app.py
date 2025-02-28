@@ -274,6 +274,8 @@ def gerar_palpites():
 def validar_digitos_unicos(numeros_str):
     """
     Valida se a entrada contém apenas dígitos únicos (0-9) separados por vírgula.
+    Não permite repetição de dígitos.
+    Retorna uma tupla (válido, mensagem de erro).
     """
     # Remover espaços em branco
     numeros_str = numeros_str.replace(" ", "")
@@ -286,10 +288,20 @@ def validar_digitos_unicos(numeros_str):
     # Verificar se cada elemento é um único dígito
     elementos = numeros_str.split(",")
     for elem in elementos:
-        if len(elem) > 1:
+        if elem and len(elem) > 1:
             return False, "Cada elemento deve ser um único dígito (0-9)."
     
-    return True, ""       
+    # Verificar se há dígitos duplicados
+    digitos = [int(elem) for elem in elementos if elem]
+    if len(digitos) != len(set(digitos)):
+        return False, "Não é permitido repetir dígitos. Use cada dígito apenas uma vez."
+    
+    # Verificar se todos os dígitos estão no intervalo 0-9
+    for digito in digitos:
+        if digito < 0 or digito > 9:
+            return False, "Apenas dígitos entre 0 e 9 são permitidos."
+    
+    return True, ""    
         
 
 if __name__ == '__main__':

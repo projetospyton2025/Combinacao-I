@@ -336,7 +336,6 @@ window.combinacoesGeradas = [];
 
 
 
-// Adicione esta função no seu arquivo script.js
 // Função para validar entrada de dígitos
 function validarEntradaDigitos() {
     const inputDigitos = document.getElementById("numeros");
@@ -367,8 +366,77 @@ function validarEntradaDigitos() {
             }
         }
         
+        // Verificar dígitos duplicados e se estão no intervalo 0-9
+        const digitosNumericos = digitos.filter(d => d !== "").map(d => parseInt(d, 10));
+        const digitosUnicos = new Set(digitosNumericos);
+        
+        if (digitosNumericos.length > digitosUnicos.size) {
+            errorDiv.textContent = "Não é permitido repetir dígitos. Use cada dígito apenas uma vez.";
+            errorDiv.style.display = "block";
+            return;
+        }
+        
+        // Verificar se todos os dígitos estão no intervalo 0-9
+        for (const digito of digitosNumericos) {
+            if (digito < 0 || digito > 9) {
+                errorDiv.textContent = "Apenas dígitos entre 0 e 9 são permitidos.";
+                errorDiv.style.display = "block";
+                return;
+            }
+        }
+        
         // Se passou em todas as validações
         errorDiv.style.display = "none";
+    });
+    
+    // Validar também no evento de submissão do formulário
+    document.getElementById("formCombinacoes").addEventListener("submit", function(e) {
+        const valor = inputDigitos.value;
+        const valorSemEspacos = valor.replace(/\s/g, "");
+        
+        // Verificar se contém apenas dígitos (0-9) e vírgulas
+        const regex = /^[0-9,]*$/;
+        if (!regex.test(valorSemEspacos)) {
+            e.preventDefault();
+            errorDiv.textContent = "Por favor, insira apenas dígitos (0-9) separados por vírgulas.";
+            errorDiv.style.display = "block";
+            return false;
+        }
+        
+        // Verificar se tem números de dois dígitos (sem vírgula entre eles)
+        const digitos = valorSemEspacos.split(",");
+        for (const digito of digitos) {
+            if (digito.length > 1) {
+                e.preventDefault();
+                errorDiv.textContent = "Cada dígito deve ser separado por vírgula. Insira apenas um dígito por vez (0-9).";
+                errorDiv.style.display = "block";
+                return false;
+            }
+        }
+        
+        // Verificar dígitos duplicados e se estão no intervalo 0-9
+        const digitosNumericos = digitos.filter(d => d !== "").map(d => parseInt(d, 10));
+        const digitosUnicos = new Set(digitosNumericos);
+        
+        if (digitosNumericos.length > digitosUnicos.size) {
+            e.preventDefault();
+            errorDiv.textContent = "Não é permitido repetir dígitos. Use cada dígito apenas uma vez.";
+            errorDiv.style.display = "block";
+            return false;
+        }
+        
+        // Verificar se todos os dígitos estão no intervalo 0-9
+        for (const digito of digitosNumericos) {
+            if (digito < 0 || digito > 9) {
+                e.preventDefault();
+                errorDiv.textContent = "Apenas dígitos entre 0 e 9 são permitidos.";
+                errorDiv.style.display = "block";
+                return false;
+            }
+        }
+        
+        // Se passou em todas as validações
+        return true;
     });
 }
 
@@ -427,4 +495,11 @@ document.addEventListener("DOMContentLoaded", function() {
     tamanhoInput.value = "2";
     tamanhoInput.setAttribute("readonly", "readonly");
     tamanhoInput.style.backgroundColor = "#f8f9fa"; // Fundo cinza para indicar que é somente leitura
+    
+    // Inicializar outras funções
+    validarEntradaDigitos();
+    
+    // Também adicionar mensagem de instrução inicial
+    const inputDigitos = document.getElementById("numeros");
+    inputDigitos.setAttribute("placeholder", "ex: 0,1,2,3,4,5");
 });

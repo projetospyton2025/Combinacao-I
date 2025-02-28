@@ -22,3 +22,8 @@
 2025-02-28 07:44:29,655 INFO: Iniciando aplicação de combinações [in J:\Meu Drive\ProjetosPython\Loterias\Combinacoes\Combinacao-I\app.py:22]
 2025-02-28 07:45:11,382 INFO: Calculando combinações para números: 0,1,2,3,5,4,6,7,8,9, tamanho: 2 [in J:\Meu Drive\ProjetosPython\Loterias\Combinacoes\Combinacao-I\app.py:55]
 2025-02-28 07:45:11,385 INFO: Geradas 99 combinações, 60 após filtrar números > 60 [in J:\Meu Drive\ProjetosPython\Loterias\Combinacoes\Combinacao-I\app.py:91]
+2025-02-28 08:39:50,638 INFO: Iniciando aplicação de combinações [in J:\Meu Drive\ProjetosPython\Loterias\Combinacoes\Combinacao-I\app.py:22]
+2025-02-28 08:40:02,326 INFO: Iniciando aplicação de combinações [in J:\Meu Drive\ProjetosPython\Loterias\Combinacoes\Combinacao-I\app.py:22]
+2025-02-28 08:40:03,634 INFO: Iniciando aplicação de combinações [in J:\Meu Drive\ProjetosPython\Loterias\Combinacoes\Combinacao-I\app.py:22]
+2025-02-28 08:42:20,941 INFO: Calculando combinações para números: 0,1,2,3,4,5, tamanho: 2 [in J:\Meu Drive\ProjetosPython\Loterias\Combinacoes\Combinacao-I\app.py:55]
+2025-02-28 08:42:20,943 INFO: Geradas 35 combinações, 35 após filtrar números > 60 [in J:\Meu Drive\ProjetosPython\Loterias\Combinacoes\Combinacao-I\app.py:91]
