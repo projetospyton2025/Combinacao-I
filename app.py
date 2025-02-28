@@ -1,11 +1,49 @@
 ﻿from flask import Flask, render_template, request, jsonify
+from dotenv import load_dotenv, find_dotenv
 import itertools
 from typing import List, Set
 import logging
 from logging.handlers import RotatingFileHandler
 import os
 import random
+import redis
 import time  # Para o caso de uso de sleep no código
+
+
+# Tenta encontrar e carregar o arquivo .env
+dotenv_path = find_dotenv()
+if not dotenv_path:
+    print("❌ ERRO: Arquivo .env não encontrado!")
+else:
+    print(f"✅ Arquivo .env encontrado: {dotenv_path}")
+    load_dotenv(dotenv_path)
+
+# Pegando a URL do Redis
+REDIS_URL = os.getenv("REDIS_URL")
+
+print(f"🔍 REDIS_URL: {REDIS_URL}")  # Deve exibir a URL do Redis, não None!
+
+if not REDIS_URL:
+    print("❌ ERRO: REDIS_URL não foi carregada! Verifique o .env ou defina manualmente.")
+    exit(1)  # Encerra o programa se a variável não foi carregada corretamente
+
+try:
+    # Criando a conexão com o Redis
+    redis_client = redis.Redis.from_url(REDIS_URL, decode_responses=True)
+    
+    # Testando a conexão
+    redis_client.ping()
+    print("✅ Conexão com o Redis estabelecida com sucesso!")
+
+except Exception as e:
+    print(f"❌ Erro ao conectar ao Redis: {type(e).__name__} - {e}")
+
+
+
+
+
+
+
 
 app = Flask(__name__)
 

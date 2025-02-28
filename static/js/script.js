@@ -1,4 +1,10 @@
-﻿// Inicializar a validação quando o documento estiver carregado
+﻿// Função para formatar número no padrão brasileiro
+function formatarNumeroParaBR(numero) {
+    return numero.toLocaleString('pt-BR');
+  }
+
+
+// Inicializar a validação quando o documento estiver carregado
 document.addEventListener("DOMContentLoaded", function() {
     validarEntradaDigitos();
     
@@ -77,6 +83,98 @@ function extrairNumerosUnicos(combinacoes) {
 
 // Função para calcular combinações
 // Função atualizada para calcular combinações
+// async function calcularCombinacoes(event) {
+//     event.preventDefault();
+    
+//     const numeros = document.getElementById("numeros").value;
+//     const tamanho = document.getElementById("tamanho").value;
+    
+//     try {
+//         const response = await fetch("/calcular", {
+//             method: "POST",
+//             headers: {
+//                 "Content-Type": "application/json"
+//             },
+//             body: JSON.stringify({ numeros, tamanho })
+//         });
+        
+//         const data = await response.json();
+        
+//         if (response.ok) {
+//             // Filtrar novamente para garantir que não exibimos números acima de 60
+//             const combinacoesFiltradas = data.combinacoes.filter(comb => {
+//                 const num = parseInt(comb);
+//                 return num > 0 && num <= 60;
+//             });
+            
+//             // Exibe o total após filtragem
+//             document.getElementById("totalCombinacoes").style.display = "block";
+//             document.getElementById("total").textContent = combinacoesFiltradas.length;
+            
+//             // Exibe as combinações no formato de tabela para Excel
+//             const combinacoesDiv = document.getElementById("combinacoes");
+//             combinacoesDiv.innerHTML = "";
+            
+//             // Usar a função para criar a tabela formatada para Excel
+//             const tabela = criarTabelaCombinacoes(combinacoesFiltradas);
+//             combinacoesDiv.appendChild(tabela);
+            
+//             document.getElementById("resultadoCard").style.display = "block";
+            
+//             // Armazenar as combinações filtradas para uso posterior
+//             window.combinacoesGeradas = combinacoesFiltradas;
+            
+//             // Verificar se deve mostrar os controles de palpites
+//             const digitosInput = document.getElementById("numeros").value;
+//             const digitos = digitosInput.split(",").map(d => d.trim()).filter(d => d);
+//             const quantidadeDigitos = digitos.length;
+            
+//             // Mostrar controles apenas se tivermos 4 ou mais dígitos
+//             const palpitesControle = document.getElementById("palpitesControle");
+//             if (quantidadeDigitos >= 4 && combinacoesFiltradas.length >= 12) {
+//                 palpitesControle.style.display = "block";
+                
+//                 // Calcular o total teórico de palpites possíveis
+//                 // Primeiro extrair os números únicos das combinações geradas
+//                 const numerosUnicosArray = extrairNumerosUnicos(combinacoesFiltradas);
+//                 console.log("Números únicos extraídos:", numerosUnicosArray);
+                
+//                 // Filtrar números maiores que 60 (limite da Mega Sena)
+//                 const numerosFiltrados = numerosUnicosArray.filter(n => n <= 60);
+                
+//                 const totalTeorico = calcularTotalCombinacoesPossiveis(numerosFiltrados.length, 6);
+//                 console.log("Total teórico calculado:", totalTeorico);
+                
+//                 // Mostrar o total teórico na interface
+//                 document.getElementById("totalTeorico").textContent = totalTeorico.toLocaleString('pt-BR');
+                
+//                 // Ajustar o range para o total teórico (com limite prático de 1000 para não travar a interface)
+                
+// 				//	const limiteMaximo = Math.min(1000, Math.max(1, totalTeorico));
+// 					const limiteMaximo = Math.max(1, totalTeorico);
+//                 const rangeInput = document.getElementById("quantidadePalpites");
+//                 rangeInput.max = limiteMaximo;
+//                 rangeInput.value = Math.min(10, limiteMaximo);
+//                 document.getElementById("valorQuantidadePalpites").textContent = rangeInput.value;
+                
+//                 // Atualizar o texto do máximo
+//                 document.getElementById("valorMaximo").textContent = limiteMaximo.toLocaleString('pt-BR');
+//             } else {
+//                 palpitesControle.style.display = "none";
+//                 // Esconder o container de palpites caso esteja visível
+//                 document.getElementById("palpitesCard").style.display = "none";
+//             }
+//         } else {
+//             alert(data.erro || "Erro ao calcular combinações");
+//         }
+//     } catch (error) {
+//         alert("Erro ao comunicar com o servidor");
+//         console.error(error);
+//     }
+// }
+
+
+// Função para calcular combinações
 async function calcularCombinacoes(event) {
     event.preventDefault();
     
@@ -95,28 +193,17 @@ async function calcularCombinacoes(event) {
         const data = await response.json();
         
         if (response.ok) {
-            // Filtrar novamente para garantir que não exibimos números acima de 60
-            const combinacoesFiltradas = data.combinacoes.filter(comb => {
-                const num = parseInt(comb);
-                return num > 0 && num <= 60;
-            });
-            
-            // Exibe o total após filtragem
+            // Exibe o total
             document.getElementById("totalCombinacoes").style.display = "block";
-            document.getElementById("total").textContent = combinacoesFiltradas.length;
+            document.getElementById("total").textContent = data.total;
             
-            // Exibe as combinações no formato de tabela para Excel
+            // Exibe as combinações
             const combinacoesDiv = document.getElementById("combinacoes");
-            combinacoesDiv.innerHTML = "";
-            
-            // Usar a função para criar a tabela formatada para Excel
-            const tabela = criarTabelaCombinacoes(combinacoesFiltradas);
-            combinacoesDiv.appendChild(tabela);
-            
+            combinacoesDiv.innerHTML = data.combinacoes.join(" ");
             document.getElementById("resultadoCard").style.display = "block";
             
-            // Armazenar as combinações filtradas para uso posterior
-            window.combinacoesGeradas = combinacoesFiltradas;
+            // Armazenar as combinações para uso posterior
+            window.combinacoesGeradas = data.combinacoes;
             
             // Verificar se deve mostrar os controles de palpites
             const digitosInput = document.getElementById("numeros").value;
@@ -125,32 +212,29 @@ async function calcularCombinacoes(event) {
             
             // Mostrar controles apenas se tivermos 4 ou mais dígitos
             const palpitesControle = document.getElementById("palpitesControle");
-            if (quantidadeDigitos >= 4 && combinacoesFiltradas.length >= 12) {
+            if (quantidadeDigitos >= 4 && data.total >= 12) {
                 palpitesControle.style.display = "block";
                 
                 // Calcular o total teórico de palpites possíveis
                 // Primeiro extrair os números únicos das combinações geradas
-                const numerosUnicosArray = extrairNumerosUnicos(combinacoesFiltradas);
+                const numerosUnicosArray = extrairNumerosUnicos(data.combinacoes);
                 console.log("Números únicos extraídos:", numerosUnicosArray);
                 
-                // Filtrar números maiores que 60 (limite da Mega Sena)
-                const numerosFiltrados = numerosUnicosArray.filter(n => n <= 60);
-                
-                const totalTeorico = calcularTotalCombinacoesPossiveis(numerosFiltrados.length, 6);
+                const totalTeorico = calcularTotalCombinacoesPossiveis(numerosUnicosArray.length, 6);
                 console.log("Total teórico calculado:", totalTeorico);
                 
-                // Mostrar o total teórico na interface
-                document.getElementById("totalTeorico").textContent = totalTeorico.toLocaleString('pt-BR');
+                // Mostrar o total teórico na interface formatado no padrão brasileiro
+                document.getElementById("totalTeorico").textContent = formatarNumeroParaBR(totalTeorico);
                 
-                // Ajustar o range para o total teórico (com limite prático de 1000 para não travar a interface)
-                const limiteMaximo = Math.min(1000, Math.max(1, totalTeorico));
+                // ALTERAÇÃO AQUI: Usar totalTeorico como limite máximo sem restrição de 1000
+                const limiteMaximo = Math.max(1, totalTeorico);
                 const rangeInput = document.getElementById("quantidadePalpites");
                 rangeInput.max = limiteMaximo;
                 rangeInput.value = Math.min(10, limiteMaximo);
-                document.getElementById("valorQuantidadePalpites").textContent = rangeInput.value;
+                document.getElementById("valorQuantidadePalpites").textContent = formatarNumeroParaBR(parseInt(rangeInput.value));
                 
-                // Atualizar o texto do máximo
-                document.getElementById("valorMaximo").textContent = limiteMaximo.toLocaleString('pt-BR');
+                // Atualizar o texto do máximo formatado no padrão brasileiro
+                document.getElementById("valorMaximo").textContent = formatarNumeroParaBR(limiteMaximo);
             } else {
                 palpitesControle.style.display = "none";
                 // Esconder o container de palpites caso esteja visível
@@ -164,7 +248,6 @@ async function calcularCombinacoes(event) {
         console.error(error);
     }
 }
-
 
 async function gerarPalpitesMegaSena() {
     // Verificar se temos combinações geradas
@@ -257,6 +340,18 @@ async function gerarPalpitesMegaSena() {
     }
 }
 
+// // Adicione este event listener para atualizar o valor exibido do slider
+// document.addEventListener("DOMContentLoaded", function() {
+//     const rangeInput = document.getElementById("quantidadePalpites");
+//     const valorSpan = document.getElementById("valorQuantidadePalpites");
+    
+//     if (rangeInput && valorSpan) {
+//         rangeInput.addEventListener("input", function() {
+//             valorSpan.textContent = this.value;
+//         });
+//     }
+// });
+
 // Adicione este event listener para atualizar o valor exibido do slider
 document.addEventListener("DOMContentLoaded", function() {
     const rangeInput = document.getElementById("quantidadePalpites");
@@ -264,7 +359,7 @@ document.addEventListener("DOMContentLoaded", function() {
     
     if (rangeInput && valorSpan) {
         rangeInput.addEventListener("input", function() {
-            valorSpan.textContent = this.value;
+            valorSpan.textContent = formatarNumeroParaBR(parseInt(this.value));
         });
     }
 });
