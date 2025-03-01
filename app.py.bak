@@ -1,5 +1,6 @@
 ﻿from flask import Flask, render_template, request, jsonify, url_for
 from dotenv import load_dotenv, find_dotenv
+import numpy as np
 import itertools
 from typing import List, Set
 import logging
@@ -9,6 +10,8 @@ import random
 import redis
 import time  # Para o caso de uso de sleep no código
 import json
+from numba import jit
+
 
 # Tenta encontrar e carregar o arquivo .env
 dotenv_path = find_dotenv()
@@ -145,6 +148,8 @@ def calcular():
 
 
 
+
+
 # Função otimizada de gerar palpites para a Mega Sena
 def gerar_palpites_mega_sena(combinacoes_formatadas, total_palpites=10):
     """
@@ -188,9 +193,9 @@ def gerar_palpites_mega_sena(combinacoes_formatadas, total_palpites=10):
     if len(numeros_disponiveis) < 6:
         raise ValueError("Não foi possível extrair números suficientes das combinações")
     
-    # Para geração de grandes quantidades, usamos uma abordagem mais eficiente
+    # Para geração de grandes quantidades, utilizamos a versão otimizada com Numba
     if total_palpites > 100:
-        return gerar_palpites_grande_quantidade(numeros_disponiveis, total_palpites)
+        return gerar_palpites_numba(numeros_disponiveis, total_palpites)
     
     # Para quantidades menores, usamos a abordagem normal
     palpites = []
@@ -202,33 +207,55 @@ def gerar_palpites_mega_sena(combinacoes_formatadas, total_palpites=10):
         
         # Se tivermos muitos números disponíveis, podemos gerar mais variações
         if len(numeros_disponiveis) > 15:
-            # Escolher 6 números aleatórios do conjunto disponível
             palpite = sorted(random.sample(numeros_disponiveis, 6))
         else:
-            # Para conjuntos menores, podemos precisar de uma abordagem mais criativa
-            # Garantir que pelo menos 3 números sejam dos disponíveis
             n_fixos = min(3, len(numeros_disponiveis))
             numeros_fixos = random.sample(numeros_disponiveis, n_fixos)
             
-            # Complementar com números aleatórios entre 1-60 que não estejam nos fixos
             numeros_adicionais = []
             while len(numeros_fixos) + len(numeros_adicionais) < 6:
                 novo_num = random.randint(1, 60)
                 if novo_num not in numeros_fixos and novo_num not in numeros_adicionais:
                     numeros_adicionais.append(novo_num)
             
-            # Juntar e ordenar
             palpite = sorted(numeros_fixos + numeros_adicionais)
         
-        # Verificar se esse palpite já existe
         palpite_str = ",".join(map(str, palpite))
         palpites_existentes = [",".join(map(str, p)) for p in palpites]
         
         if palpite_str not in palpites_existentes:
             palpites.append(palpite)
     
-    # Se não conseguimos gerar palpites suficientes, retornar o que temosconst socketioU
     return palpites
+    
+    
+    
+    
+    
+    
+
+# Função otimizada utilizando Numba para grandes quantidades de palpites
+@jit(nopython=True)
+def gerar_palpites_numba(numeros, total):
+    """
+    Função otimizada para gerar grandes quantidades de palpites usando Numba.
+    """
+    palpites = []
+    tentativas = 0
+    max_tentativas = total * 5
+    
+    while len(palpites) < total and tentativas < max_tentativas:
+        tentativas += 1
+        # Implementação simplificada para suportar Numba
+        if len(numeros) >= 6:
+            indices = random.sample(range(len(numeros)), 6)
+            palpite = sorted([numeros[i] for i in indices])
+            if palpite not in palpites:
+                palpites.append(palpite)
+    
+    return palpites
+
+
 
 def gerar_palpites_grande_quantidade(numeros_disponiveis, total_palpites):
     """
@@ -308,38 +335,32 @@ def gerar_palpites():
         if not combinacoes_formatadas or total_palpites <= 0:
             app.logger.warning('Dados de entrada para geração de palpites inválidos')
             return jsonify({"erro": "Dados inválidos"}), 400
+
+        # Verificar se estamos tentando gerar muitos palpites
+        if total_palpites > 1000000:
+            app.logger.warning(f'Solicitação de grande volume: {total_palpites} palpites')
         
-        # Gerar todos os palpites
+        # Gerar palpites - sem limitar a quantidade
         start_time = time.time()
         
-        # Verificar se já temos os palpites em cache (Redis)
-        cache_key = f"palpites:{','.join(sorted(combinacoes_formatadas))}:{total_palpites}"
-        cached_palpites = redis_client.get(cache_key)
-        
-        if cached_palpites:
-            app.logger.info(f'Usando palpites em cache')
-            todos_palpites = json.loads(cached_palpites)
-        else:
-            # Gerar todos os palpites
-            todos_palpites = gerar_palpites_mega_sena(combinacoes_formatadas, total_palpites)
-            # Armazenar no cache (expira em 1 hora)
-            redis_client.setex(cache_key, 3600, json.dumps(todos_palpites))
+        # Usar a função existente para gerar palpites
+        palpites = gerar_palpites_mega_sena(combinacoes_formatadas, total_palpites)
         
         # Calcular índices para paginação
         inicio = (pagina - 1) * itens_por_pagina
-        fim = min(inicio + itens_por_pagina, len(todos_palpites))
+        fim = min(inicio + itens_por_pagina, len(palpites))
         
         # Obter apenas os palpites desta página
-        palpites_pagina = todos_palpites[inicio:fim]
+        palpites_pagina = palpites[inicio:fim]
         
         # Total de páginas
-        total_paginas = (len(todos_palpites) + itens_por_pagina - 1) // itens_por_pagina
+        total_paginas = (len(palpites) + itens_por_pagina - 1) // itens_por_pagina
         
         execution_time = time.time() - start_time
-        app.logger.info(f'Gerados palpites da página {pagina} em {execution_time:.2f} segundos')
+        app.logger.info(f'Gerados {len(palpites)} palpites em {execution_time:.2f} segundos')
         
         return jsonify({
-            "total": len(todos_palpites),
+            "total": len(palpites),
             "palpites": palpites_pagina,
             "pagina_atual": pagina,
             "total_paginas": total_paginas,
@@ -391,6 +412,38 @@ if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
     from werkzeug.serving import run_simple
     run_simple('0.0.0.0', port, app, threaded=True, use_reloader=True)
+
+
+def extrair_numeros_eficiente(combinacoes_formatadas):
+    """
+    Extrai números únicos das combinações usando NumPy para maior eficiência.
+    
+    Args:
+        combinacoes_formatadas: Lista de strings com combinações
+        
+    Returns:
+        numpy.ndarray: Array NumPy de números únicos entre 1 e 60
+    """
+    # Inicialmente vamos coletar todos os números possíveis (pares de dígitos)
+    numeros_candidatos = []
+    for combinacao in combinacoes_formatadas:
+        i = 0
+        while i < len(combinacao):
+            if i + 1 < len(combinacao):
+                try:
+                    num_str = combinacao[i:i+2]
+                    numero = int(num_str)
+                    if 1 <= numero <= 60:  # Garantir que está no intervalo da Mega Sena
+                        numeros_candidatos.append(numero)
+                except ValueError:
+                    pass
+            i += 2  # Avançar para o próximo par de dígitos
+    
+    # Converte para array NumPy e remove duplicatas
+    if numeros_candidatos:
+        return np.unique(np.array(numeros_candidatos))
+    else:
+        return np.array([])
 
 """
 if __name__ == '__main__':

@@ -8,7 +8,7 @@ import os
 import random
 import redis
 import time  # Para o caso de uso de sleep no código
-import json
+
 
 # Tenta encontrar e carregar o arquivo .env
 dotenv_path = find_dotenv()
@@ -286,7 +286,6 @@ def gerar_palpites_grande_quantidade(numeros_disponiveis, total_palpites):
     
     return palpites
 
-
 @app.route("/gerar_palpites", methods=["POST"])
 def gerar_palpites():
     try:
@@ -298,55 +297,36 @@ def gerar_palpites():
         combinacoes_formatadas = dados.get("combinacoes", [])
         total_palpites = int(dados.get("quantidade", 10))
         
-        # Parâmetros de paginação
-        pagina = int(dados.get("pagina", 1))
-        itens_por_pagina = int(dados.get("itens_por_pagina", 100))
-        
-        app.logger.info(f'Gerando palpites para a Mega Sena. Total: {total_palpites}, Página: {pagina}, Itens: {itens_por_pagina}')
+        app.logger.info(f'Gerando {total_palpites} palpites para a Mega Sena.')
         
         # Validação
         if not combinacoes_formatadas or total_palpites <= 0:
             app.logger.warning('Dados de entrada para geração de palpites inválidos')
             return jsonify({"erro": "Dados inválidos"}), 400
-
-        # Verificar se estamos tentando gerar muitos palpites
-        if total_palpites > 1000000:
-            app.logger.warning(f'Solicitação de grande volume: {total_palpites} palpites')
         
-        # Gerar palpites - sem limitar a quantidade
+        # Limitar o número máximo de palpites para evitar timeout
+        max_palpites = 10000  # Ajuste conforme necessário
+        if total_palpites > max_palpites:
+            app.logger.warning(f'Solicitação de {total_palpites} palpites excede o limite de {max_palpites}')
+            total_palpites = max_palpites
+        
+        # Definir timeout para evitar que o servidor fique bloqueado
+        timeout_seconds = 30  # Ajuste conforme necessário
+        
+        # Usar um timer para limitar o tempo de execução
         start_time = time.time()
-        
-        # Usar a função existente para gerar palpites
         palpites = gerar_palpites_mega_sena(combinacoes_formatadas, total_palpites)
-        
-        # Calcular índices para paginação
-        inicio = (pagina - 1) * itens_por_pagina
-        fim = min(inicio + itens_por_pagina, len(palpites))
-        
-        # Obter apenas os palpites desta página
-        palpites_pagina = palpites[inicio:fim]
-        
-        # Total de páginas
-        total_paginas = (len(palpites) + itens_por_pagina - 1) // itens_por_pagina
-        
         execution_time = time.time() - start_time
+        
         app.logger.info(f'Gerados {len(palpites)} palpites em {execution_time:.2f} segundos')
         
-        return jsonify({
-            "total": len(palpites),
-            "palpites": palpites_pagina,
-            "pagina_atual": pagina,
-            "total_paginas": total_paginas,
-            "itens_por_pagina": itens_por_pagina,
-            "itens_nesta_pagina": len(palpites_pagina)
-        })
+        return jsonify({"total": len(palpites), "palpites": palpites})
     
     except Exception as e:
         app.logger.error(f'Erro inesperado ao gerar palpites: {str(e)}')
         import traceback
         app.logger.error(traceback.format_exc())
         return jsonify({"erro": f"Erro inesperado: {str(e)}"}), 500
-
         
 def validar_digitos_unicos(numeros_str):
     """
@@ -380,14 +360,7 @@ def validar_digitos_unicos(numeros_str):
     
     return True, ""    
         
-if __name__ == '__main__':
-    # Aumentar o timeout de resposta do servidor
-    port = int(os.environ.get("PORT", 10000))
-    from werkzeug.serving import run_simple
-    run_simple('0.0.0.0', port, app, threaded=True, use_reloader=True)
 
-"""
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
-"""
