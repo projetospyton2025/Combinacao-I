@@ -1,4 +1,5 @@
-﻿// Função para formatar número no padrão brasileiro
+﻿// scripts.js
+// Função para formatar número no padrão brasileiro
 function formatarNumeroParaBR(numero) {
     return numero.toLocaleString('pt-BR');
   }
@@ -248,7 +249,6 @@ async function calcularCombinacoes(event) {
         console.error(error);
     }
 }
-
 async function gerarPalpitesMegaSena() {
     // Verificar se temos combinações geradas
     if (!window.combinacoesGeradas || window.combinacoesGeradas.length === 0) {
@@ -259,8 +259,12 @@ async function gerarPalpitesMegaSena() {
     // Obter a quantidade desejada de palpites
     const quantidadePalpites = parseInt(document.getElementById("quantidadePalpites").value);
     
-    // Mostrar um indicador de carregamento para grandes quantidades
-    if (quantidadePalpites > 50) {
+    try {
+        console.log("Iniciando requisição para gerar palpites...");
+        console.log("Combinações:", window.combinacoesGeradas.length);
+        console.log("Quantidade:", quantidadePalpites);
+        
+        // Mostrar indicador de carregamento
         document.getElementById("palpitesCard").style.display = "block";
         document.getElementById("palpites").innerHTML = 
             `<div class="alert alert-info">
@@ -269,9 +273,7 @@ async function gerarPalpitesMegaSena() {
                 </div>
                 Gerando ${quantidadePalpites} palpites. Isso pode levar alguns segundos...
             </div>`;
-    }
-    
-    try {
+        
         const response = await fetch("/gerar_palpites", {
             method: "POST",
             headers: {
@@ -283,60 +285,63 @@ async function gerarPalpitesMegaSena() {
             })
         });
         
-        const data = await response.json();
+        console.log("Resposta recebida:", response.status);
         
-        if (response.ok) {
-            // Exibe o total de palpites
-            document.getElementById("totalPalpites").textContent = data.total;
+        if (!response.ok) {
+            console.error("Erro HTTP:", response.status, response.statusText);
+            const errorText = await response.text();
+            console.error("Texto do erro:", errorText);
+            throw new Error(`Erro HTTP: ${response.status} - ${errorText}`);
+        }
+        
+        const data = await response.json();
+        console.log("Dados recebidos:", data);
+        
+        // Exibe o total de palpites
+        document.getElementById("totalPalpites").textContent = data.total;
+        
+        // Exibe os palpites
+        const palpitesDiv = document.getElementById("palpites");
+        palpitesDiv.innerHTML = "";
+        
+        // Criando tabela de palpites
+        const table = document.createElement("table");
+        table.className = "table table-striped";
+        
+        const thead = document.createElement("thead");
+        const headerRow = document.createElement("tr");
+        
+        // Cabeçalho numerado de 1 a 6
+        for (let i = 1; i <= 6; i++) {
+            const th = document.createElement("th");
+            th.textContent = `Nº ${i}`;
+            headerRow.appendChild(th);
+        }
+        
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+        
+        const tbody = document.createElement("tbody");
+        
+        // Adicionar cada palpite como uma linha
+        data.palpites.forEach((palpite, index) => {
+            const row = document.createElement("tr");
             
-            // Exibe os palpites
-            const palpitesDiv = document.getElementById("palpites");
-            palpitesDiv.innerHTML = "";
-            
-            // Criando tabela de palpites
-            const table = document.createElement("table");
-            table.className = "table table-striped";
-            
-            const thead = document.createElement("thead");
-            const headerRow = document.createElement("tr");
-            
-            // Cabeçalho numerado de 1 a 6
-            for (let i = 1; i <= 6; i++) {
-                const th = document.createElement("th");
-                th.textContent = `Nº ${i}`;
-                headerRow.appendChild(th);
-            }
-            
-            thead.appendChild(headerRow);
-            table.appendChild(thead);
-            
-            const tbody = document.createElement("tbody");
-            
-            // Adicionar cada palpite como uma linha
-            data.palpites.forEach((palpite, index) => {
-                const row = document.createElement("tr");
-                
-                // Cada número do palpite em uma célula
-                palpite.forEach(numero => {
-                    const cell = document.createElement("td");
-                    cell.textContent = numero;
-                    row.appendChild(cell);
-                });
-                
-                tbody.appendChild(row);
+            // Cada número do palpite em uma célula
+            palpite.forEach(numero => {
+                const cell = document.createElement("td");
+                cell.textContent = numero;
+                row.appendChild(cell);
             });
             
-            table.appendChild(tbody);
-            palpitesDiv.appendChild(table);
-            
-            // Exibe o card de palpites
-            document.getElementById("palpitesCard").style.display = "block";
-        } else {
-            alert(data.erro || "Erro ao gerar palpites");
-        }
+            tbody.appendChild(row);
+        });
+        
+        table.appendChild(tbody);
+        palpitesDiv.appendChild(table);
     } catch (error) {
-        alert("Erro ao comunicar com o servidor");
-        console.error(error);
+        console.error("Erro completo:", error);
+        alert("Erro ao comunicar com o servidor: " + error.message);
     }
 }
 
@@ -597,4 +602,200 @@ document.addEventListener("DOMContentLoaded", function() {
     // Também adicionar mensagem de instrução inicial
     const inputDigitos = document.getElementById("numeros");
     inputDigitos.setAttribute("placeholder", "ex: 0,1,2,3,4,5");
+});
+
+
+// Função para gerar palpites (modificada para suportar assíncrono)
+async function gerarPalpitesMegaSena() {
+    // Verificar se temos combinações geradas
+    if (!window.combinacoesGeradas || window.combinacoesGeradas.length === 0) {
+        alert("Por favor, gere as combinações primeiro.");
+        return;
+    }
+    
+    // Obter a quantidade desejada de palpites
+    const quantidadePalpites = parseInt(document.getElementById("quantidadePalpites").value);
+    
+    // Mostrar um indicador de carregamento para grandes quantidades
+    if (quantidadePalpites > 50) {
+        document.getElementById("palpitesCard").style.display = "block";
+        document.getElementById("palpites").innerHTML = 
+            `<div class="alert alert-info">
+                <div class="spinner-border spinner-border-sm" role="status">
+                    <span class="visually-hidden">Carregando...</span>
+                </div>
+                Gerando ${quantidadePalpites} palpites. Isso pode levar alguns segundos...
+            </div>`;
+    }
+    
+    try {
+        // Adicionar um timeout maior para a requisição
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 segundos de timeout
+        
+        const response = await fetch("/gerar_palpites", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ 
+                combinacoes: window.combinacoesGeradas,
+                quantidade: quantidadePalpites
+            }),
+            signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId); // Limpar o timeout se a requisição completar antes
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Erro na resposta:", response.status, errorText);
+            throw new Error(`Erro do servidor: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Exibe o total de palpites
+        document.getElementById("totalPalpites").textContent = data.total;
+        
+        // Exibe os palpites
+        const palpitesDiv = document.getElementById("palpites");
+        palpitesDiv.innerHTML = "";
+        
+        // Criando tabela de palpites
+        const table = document.createElement("table");
+        table.className = "table table-striped";
+        
+        const thead = document.createElement("thead");
+        const headerRow = document.createElement("tr");
+        
+        // Cabeçalho numerado de 1 a 6
+        for (let i = 1; i <= 6; i++) {
+            const th = document.createElement("th");
+            th.textContent = `Nº ${i}`;
+            headerRow.appendChild(th);
+        }
+        
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+        
+        const tbody = document.createElement("tbody");
+        
+        // Adicionar cada palpite como uma linha
+        data.palpites.forEach((palpite, index) => {
+            const row = document.createElement("tr");
+            
+            // Cada número do palpite em uma célula
+            palpite.forEach(numero => {
+                const cell = document.createElement("td");
+                cell.textContent = numero;
+                row.appendChild(cell);
+            });
+            
+            tbody.appendChild(row);
+        });
+        
+        table.appendChild(tbody);
+        palpitesDiv.appendChild(table);
+        
+        // Exibe o card de palpites
+        document.getElementById("palpitesCard").style.display = "block";
+    } catch (error) {
+        console.error("Erro completo:", error);
+        
+        // Mostrar uma mensagem de erro mais informativa
+        const palpitesDiv = document.getElementById("palpites");
+        palpitesDiv.innerHTML = `
+            <div class="alert alert-danger">
+                <strong>Erro ao gerar palpites:</strong> ${error.message || 'Erro de comunicação com o servidor'}
+                <hr>
+                <small>Tente reduzir o número de palpites solicitados ou tente novamente mais tarde.</small>
+            </div>
+        `;
+        
+        document.getElementById("palpitesCard").style.display = "block";
+    }
+}
+
+
+// Função para polling (backup caso WebSockets não esteja disponível)
+function iniciarPolling(taskId) {
+    const intervalId = setInterval(async () => {
+        try {
+            const response = await fetch(`/verificar_tarefa/${taskId}`);
+            const data = await response.json();
+            
+            // Simular atualização de WebSocket
+            atualizarProgressoTarefa({
+                status: data.status,
+                progress: Math.floor((data.current / data.total) * 100),
+                message: data.status,
+                result: data.resultado
+            });
+            
+            // Se concluído ou falhou, parar o polling
+            if (data.status === 'concluído' || data.status === 'falha') {
+                clearInterval(intervalId);
+            }
+        } catch (error) {
+            console.error("Erro no polling:", error);
+        }
+    }, 2000); // Verificar a cada 2 segundos
+}
+
+// Função para exibir os palpites
+function exibirPalpites(palpites) {
+    const palpitesDiv = document.getElementById("palpites");
+    palpitesDiv.innerHTML = "";
+    
+    // Criando tabela de palpites
+    const table = document.createElement("table");
+    table.className = "table table-striped";
+    
+    const thead = document.createElement("thead");
+    const headerRow = document.createElement("tr");
+    
+    // Cabeçalho numerado de 1 a 6
+    for (let i = 1; i <= 6; i++) {
+        const th = document.createElement("th");
+        th.textContent = `Nº ${i}`;
+        headerRow.appendChild(th);
+    }
+    
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+    
+    const tbody = document.createElement("tbody");
+    
+    // Adicionar cada palpite como uma linha
+    palpites.forEach((palpite) => {
+        const row = document.createElement("tr");
+        
+        // Cada número do palpite em uma célula
+        palpite.forEach(numero => {
+            const cell = document.createElement("td");
+            cell.textContent = numero;
+            row.appendChild(cell);
+        });
+        
+        tbody.appendChild(row);
+    });
+    
+    table.appendChild(tbody);
+    palpitesDiv.appendChild(table);
+}
+
+// Event handler para o botão de novo processamento
+document.addEventListener("DOMContentLoaded", function() {
+    const btnNovo = document.getElementById("btnNovoProcessamento");
+    if (btnNovo) {
+        btnNovo.addEventListener("click", function() {
+            // Esconder o card de processamento
+            document.getElementById("processamentoAssincrono").style.display = "none";
+            // Limpar o task ID atual
+            if (typeof currentTaskId !== 'undefined') {
+                currentTaskId = null;
+            }
+        });
+    }
 });

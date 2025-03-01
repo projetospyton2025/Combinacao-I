@@ -9,12 +9,13 @@
 	<script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
 	<script src="{{ url_for('static', filename='js/websocket.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/websocket_connect.js') }}"></script>
+	
 </head>
 <body>
     <div class="container mt-5">
         <h1 class="text-center mb-4">Calculadora de Combinações (Digitos)</h1>
-			<p>A tabela abaixo mostra quantas combinações será possível formar, conforme o total de digitos informado. </p>
-			<p>Acesso também o modal, para as combinações completas.</p>
+			<p>A tabela abaixo mostra quantas combinações será possivel formar, conforme o total de digitos informado. </p>
+			<p>Acesso também o modal, para as combinações completa.</p>
 		<table>
 		  <thead>
 			<tr>
@@ -268,19 +269,6 @@
 		const socketioUrl = "http://" + window.location.hostname + ":10001";
 		const socket = connectWebSocket(socketioUrl);	
 	</script>
-
-    <script>
-        // Inicializar o Socket.IO quando a página carregar
-        document.addEventListener('DOMContentLoaded', function() {
-            try {
-                const socketioUrl = document.getElementById('socketioUrl').value || "http://" + window.location.hostname + ":10001";
-                console.log("Configurando conexão Socket.IO para:", socketioUrl);
-                window.socket = connectWebSocket(socketioUrl);
-            } catch (e) {
-                console.error("Erro ao configurar Socket.IO:", e);
-            }
-        });
-    </script>
 
 </body>
 </html>

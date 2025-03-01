@@ -1,3 +1,5 @@
+#gospers_hack.py
+
 def gospers_hack(k, n):
     """
     Algoritmo de Gosper's Hack para gerar combinações de k elementos de um conjunto de n elementos.

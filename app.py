@@ -1,4 +1,4 @@
-﻿from flask import Flask, render_template, request, jsonify
+﻿from flask import Flask, render_template, request, jsonify, url_for
 from dotenv import load_dotenv, find_dotenv
 import itertools
 from typing import List, Set
@@ -80,7 +80,8 @@ def formatar_numero(combinacao: tuple) -> str:
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    socketio_url = f"http://{request.host.split(':')[0]}:10001"
+    return render_template("index.html", socketio_url=socketio_url)
 
 
 @app.route("/calcular", methods=["POST"])
@@ -226,7 +227,7 @@ def gerar_palpites_mega_sena(combinacoes_formatadas, total_palpites=10):
         if palpite_str not in palpites_existentes:
             palpites.append(palpite)
     
-    # Se não conseguimos gerar palpites suficientes, retornar o que temos
+    # Se não conseguimos gerar palpites suficientes, retornar o que temosconst socketioU
     return palpites
 
 def gerar_palpites_grande_quantidade(numeros_disponiveis, total_palpites):
@@ -289,8 +290,12 @@ def gerar_palpites_grande_quantidade(numeros_disponiveis, total_palpites):
 def gerar_palpites():
     try:
         dados = request.get_json()
+        if not dados:
+            app.logger.error('Dados JSON não recebidos ou inválidos')
+            return jsonify({"erro": "Dados JSON inválidos ou não fornecidos"}), 400
+            
         combinacoes_formatadas = dados.get("combinacoes", [])
-        total_palpites = int(dados.get("quantidade", 10)) # Mudou "total_palpites" para "quantidade"
+        total_palpites = int(dados.get("quantidade", 10))
         
         app.logger.info(f'Gerando {total_palpites} palpites para a Mega Sena.')
         
@@ -299,14 +304,28 @@ def gerar_palpites():
             app.logger.warning('Dados de entrada para geração de palpites inválidos')
             return jsonify({"erro": "Dados inválidos"}), 400
         
+        # Limitar o número máximo de palpites para evitar timeout
+        max_palpites = 10000  # Ajuste conforme necessário
+        if total_palpites > max_palpites:
+            app.logger.warning(f'Solicitação de {total_palpites} palpites excede o limite de {max_palpites}')
+            total_palpites = max_palpites
+        
+        # Definir timeout para evitar que o servidor fique bloqueado
+        timeout_seconds = 30  # Ajuste conforme necessário
+        
+        # Usar um timer para limitar o tempo de execução
+        start_time = time.time()
         palpites = gerar_palpites_mega_sena(combinacoes_formatadas, total_palpites)
+        execution_time = time.time() - start_time
         
-        app.logger.info(f'Gerados {len(palpites)} palpites')
+        app.logger.info(f'Gerados {len(palpites)} palpites em {execution_time:.2f} segundos')
         
-        return jsonify({"total": len(palpites), "palpites": palpites})# Mudou "total_palpites" para "total"
+        return jsonify({"total": len(palpites), "palpites": palpites})
     
     except Exception as e:
         app.logger.error(f'Erro inesperado ao gerar palpites: {str(e)}')
+        import traceback
+        app.logger.error(traceback.format_exc())
         return jsonify({"erro": f"Erro inesperado: {str(e)}"}), 500
         
 def validar_digitos_unicos(numeros_str):
