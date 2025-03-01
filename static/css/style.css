@@ -206,6 +206,27 @@ tbody tr:hover {
     background-color: #f8f9fa;
     cursor: not-allowed;
 }
+/* Adicione este CSS ao seu arquivo style.css */
+.tabela-excel {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+}
+
+.tabela-excel td {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  cursor: text !important;
+}
+
+/* Aumentar a área selecionável da célula */
+.celula-excel {
+  padding: 8px 12px !important;
+  min-width: 40px;
+}
 
 
 @media only screen and (max-width: 600px) {

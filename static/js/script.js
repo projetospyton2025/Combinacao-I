@@ -646,8 +646,117 @@ function criarTabelaCombinacoes(combinacoes) {
     }
     
     tabela.appendChild(tbody);
-    return tabela;
+    
+    // Criar contêiner para a tabela e botão de cópia
+    const divContainer = document.createElement('div');
+    divContainer.className = 'tabela-container';
+    
+    const botaoCopiar = document.createElement('button');
+    botaoCopiar.className = 'btn btn-sm btn-outline-primary mt-2';
+    botaoCopiar.innerHTML = 'Copiar para área de transferência';
+    botaoCopiar.onclick = function() {
+        copiarTabelaParaClipboard(combinacoesFiltradas);
+    };
+    
+    divContainer.appendChild(tabela);
+    divContainer.appendChild(botaoCopiar);
+    
+    return divContainer;
 }
+
+// Função melhorada para copiar para a área de transferência
+function copiarTabelaParaClipboard(combinacoes) {
+    // Formatar para colar no Excel (tabs entre colunas, nova linha entre linhas)
+    const numeroColunas = 6;
+    let textoFormatado = '';
+    
+    for (let i = 0; i < combinacoes.length; i++) {
+        const num = parseInt(combinacoes[i]);
+        // Formatar com zero à esquerda para números < 10
+        textoFormatado += (num < 10 ? `0${num}` : num);
+        
+        // Adicionar tab ou nova linha
+        if ((i + 1) % numeroColunas === 0) {
+            textoFormatado += '\n'; // Nova linha após cada 6 números
+        } else {
+            textoFormatado += '\t'; // Tab entre colunas
+        }
+    }
+    
+    // Método 1: Tenta usar a API Clipboard moderna
+    if (navigator.clipboard && window.isSecureContext) {
+        try {
+            navigator.clipboard.writeText(textoFormatado)
+                .then(() => mostrarMensagemSucesso())
+                .catch((err) => {
+                    console.error('Erro ao usar clipboard API:', err);
+                    usarMetodoAlternativo();
+                });
+        } catch (err) {
+            console.error('Exceção ao usar clipboard API:', err);
+            usarMetodoAlternativo();
+        }
+    } else {
+        // Método alternativo para navegadores sem suporte à API Clipboard
+        usarMetodoAlternativo();
+    }
+    
+    // Função para usar o método alternativo (textarea + execCommand)
+    function usarMetodoAlternativo() {
+        try {
+            const textArea = document.createElement('textarea');
+            textArea.value = textoFormatado;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '0';
+            textArea.style.top = '0';
+            textArea.style.opacity = '0';
+            textArea.style.pointerEvents = 'none';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            if (successful) {
+                mostrarMensagemSucesso();
+            } else {
+                mostrarAreaSelecao();
+            }
+        } catch (err) {
+            console.error('Erro ao copiar usando execCommand:', err);
+            mostrarAreaSelecao();
+        }
+    }
+    
+    // Função para mostrar área de seleção manual
+    function mostrarAreaSelecao() {
+        // Criar uma área de texto visível que o usuário pode selecionar manualmente
+        const divSelecao = document.createElement('div');
+        divSelecao.className = 'area-selecao mt-3 p-3 border bg-light';
+        divSelecao.innerHTML = `
+            <p class="mb-2">Não foi possível copiar automaticamente. Selecione o texto abaixo e use Ctrl+C para copiar:</p>
+            <pre class="border p-2 bg-white" style="white-space: pre-wrap; word-break: break-all;">${textoFormatado}</pre>
+            <button class="btn btn-sm btn-secondary mt-2" onclick="this.parentNode.remove()">Fechar</button>
+        `;
+        document.getElementById('combinacoes').appendChild(divSelecao);
+    }
+    
+    // Função para mostrar mensagem de sucesso
+    function mostrarMensagemSucesso() {
+        const message = document.createElement('div');
+        message.className = 'alert alert-success mt-2';
+        message.textContent = 'Combinações copiadas para a área de transferência!';
+        document.getElementById('combinacoes').appendChild(message);
+        
+        // Remover mensagem após 3 segundos
+        setTimeout(() => {
+            message.remove();
+        }, 3000);
+    }
+}
+
+
 
 document.addEventListener("DOMContentLoaded", function() {
     // Garantir que o tamanho do agrupamento seja fixo em 2
@@ -901,4 +1010,42 @@ function atualizarStatusPaginacao(mensagem) {
     if (paginaInfoElement) {
         paginaInfoElement.textContent = mensagem;
     }
+}
+
+
+// Alternativa para copiar quando a API Clipboard não está disponível
+function copiarTabelaAlternativo(combinacoes) {
+    // Criar um elemento textArea temporário
+    const textArea = document.createElement('textarea');
+    
+    // Formatar dados
+    const numeroColunas = 6;
+    let textoFormatado = '';
+    
+    for (let i = 0; i < combinacoes.length; i++) {
+        const num = parseInt(combinacoes[i]);
+        textoFormatado += (num < 10 ? `0${num}` : num);
+        
+        if ((i + 1) % numeroColunas === 0) {
+            textoFormatado += '\n';
+        } else {
+            textoFormatado += '\t';
+        }
+    }
+    
+    // Configurar e adicionar textArea
+    textArea.value = textoFormatado;
+    document.body.appendChild(textArea);
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    
+    // Selecionar e copiar
+    textArea.select();
+    document.execCommand('copy');
+    
+    // Remover o elemento
+    document.body.removeChild(textArea);
+    
+    // Feedback
+    alert('Combinações copiadas para a área de transferência!');
 }

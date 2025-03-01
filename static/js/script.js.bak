@@ -90,99 +90,10 @@ function extrairNumerosUnicos(combinacoes) {
   return [...numerosUnicos];
 }
 
+
+
+
 // Função para calcular combinações
-// Função atualizada para calcular combinações
-// async function calcularCombinacoes(event) {
-//     event.preventDefault();
-    
-//     const numeros = document.getElementById("numeros").value;
-//     const tamanho = document.getElementById("tamanho").value;
-    
-//     try {
-//         const response = await fetch("/calcular", {
-//             method: "POST",
-//             headers: {
-//                 "Content-Type": "application/json"
-//             },
-//             body: JSON.stringify({ numeros, tamanho })
-//         });
-        
-//         const data = await response.json();
-        
-//         if (response.ok) {
-//             // Filtrar novamente para garantir que não exibimos números acima de 60
-//             const combinacoesFiltradas = data.combinacoes.filter(comb => {
-//                 const num = parseInt(comb);
-//                 return num > 0 && num <= 60;
-//             });
-            
-//             // Exibe o total após filtragem
-//             document.getElementById("totalCombinacoes").style.display = "block";
-//             document.getElementById("total").textContent = combinacoesFiltradas.length;
-            
-//             // Exibe as combinações no formato de tabela para Excel
-//             const combinacoesDiv = document.getElementById("combinacoes");
-//             combinacoesDiv.innerHTML = "";
-            
-//             // Usar a função para criar a tabela formatada para Excel
-//             const tabela = criarTabelaCombinacoes(combinacoesFiltradas);
-//             combinacoesDiv.appendChild(tabela);
-            
-//             document.getElementById("resultadoCard").style.display = "block";
-            
-//             // Armazenar as combinações filtradas para uso posterior
-//             window.combinacoesGeradas = combinacoesFiltradas;
-            
-//             // Verificar se deve mostrar os controles de palpites
-//             const digitosInput = document.getElementById("numeros").value;
-//             const digitos = digitosInput.split(",").map(d => d.trim()).filter(d => d);
-//             const quantidadeDigitos = digitos.length;
-            
-//             // Mostrar controles apenas se tivermos 4 ou mais dígitos
-//             const palpitesControle = document.getElementById("palpitesControle");
-//             if (quantidadeDigitos >= 4 && combinacoesFiltradas.length >= 12) {
-//                 palpitesControle.style.display = "block";
-                
-//                 // Calcular o total teórico de palpites possíveis
-//                 // Primeiro extrair os números únicos das combinações geradas
-//                 const numerosUnicosArray = extrairNumerosUnicos(combinacoesFiltradas);
-//                 console.log("Números únicos extraídos:", numerosUnicosArray);
-                
-//                 // Filtrar números maiores que 60 (limite da Mega Sena)
-//                 const numerosFiltrados = numerosUnicosArray.filter(n => n <= 60);
-                
-//                 const totalTeorico = calcularTotalCombinacoesPossiveis(numerosFiltrados.length, 6);
-//                 console.log("Total teórico calculado:", totalTeorico);
-                
-//                 // Mostrar o total teórico na interface
-//                 document.getElementById("totalTeorico").textContent = totalTeorico.toLocaleString('pt-BR');
-                
-//                 // Ajustar o range para o total teórico (com limite prático de 1000 para não travar a interface)
-                
-// 				//	const limiteMaximo = Math.min(1000, Math.max(1, totalTeorico));
-// 					const limiteMaximo = Math.max(1, totalTeorico);
-//                 const rangeInput = document.getElementById("quantidadePalpites");
-//                 rangeInput.max = limiteMaximo;
-//                 rangeInput.value = Math.min(10, limiteMaximo);
-//                 document.getElementById("valorQuantidadePalpites").textContent = rangeInput.value;
-                
-//                 // Atualizar o texto do máximo
-//                 document.getElementById("valorMaximo").textContent = limiteMaximo.toLocaleString('pt-BR');
-//             } else {
-//                 palpitesControle.style.display = "none";
-//                 // Esconder o container de palpites caso esteja visível
-//                 document.getElementById("palpitesCard").style.display = "none";
-//             }
-//         } else {
-//             alert(data.erro || "Erro ao calcular combinações");
-//         }
-//     } catch (error) {
-//         alert("Erro ao comunicar com o servidor");
-//         console.error(error);
-//     }
-// }
-
-
 // Função para calcular combinações
 async function calcularCombinacoes(event) {
     event.preventDefault();
@@ -208,7 +119,18 @@ async function calcularCombinacoes(event) {
             
             // Exibe as combinações
             const combinacoesDiv = document.getElementById("combinacoes");
-            combinacoesDiv.innerHTML = data.combinacoes.join(" ");
+            
+            // Verificar se deve usar formatação para Excel
+            if (data.formatado_para_excel) {
+                // Usar a função para criar a tabela formatada para Excel
+                const tabela = criarTabelaCombinacoes(data.combinacoes);
+                combinacoesDiv.innerHTML = ""; // Limpar conteúdo anterior
+                combinacoesDiv.appendChild(tabela);
+            } else {
+                // Exibição simples como texto
+                combinacoesDiv.innerHTML = data.combinacoes.join(" ");
+            }
+            
             document.getElementById("resultadoCard").style.display = "block";
             
             // Armazenar as combinações para uso posterior
@@ -257,6 +179,9 @@ async function calcularCombinacoes(event) {
         console.error(error);
     }
 }
+
+
+
 async function gerarPalpitesMegaSena() {
     // Verificar se temos combinações geradas
     if (!window.combinacoesGeradas || window.combinacoesGeradas.length === 0) {
@@ -721,7 +646,61 @@ function criarTabelaCombinacoes(combinacoes) {
     }
     
     tabela.appendChild(tbody);
-    return tabela;
+    
+    // Criar contêiner para a tabela e botão de cópia
+    const divContainer = document.createElement('div');
+    divContainer.className = 'tabela-container';
+    
+    const botaoCopiar = document.createElement('button');
+    botaoCopiar.className = 'btn btn-sm btn-outline-primary mt-2';
+    botaoCopiar.innerHTML = 'Copiar para área de transferência';
+    botaoCopiar.onclick = function() {
+        copiarTabelaParaClipboard(combinacoesFiltradas);
+    };
+    
+    divContainer.appendChild(tabela);
+    divContainer.appendChild(botaoCopiar);
+    
+    return divContainer;
+}
+
+// Função para copiar para a área de transferência
+function copiarTabelaParaClipboard(combinacoes) {
+    // Formatar para colar no Excel (tabs entre colunas, nova linha entre linhas)
+    const numeroColunas = 6;
+    let textoFormatado = '';
+    
+    for (let i = 0; i < combinacoes.length; i++) {
+        const num = parseInt(combinacoes[i]);
+        // Formatar com zero à esquerda para números < 10
+        textoFormatado += (num < 10 ? `0${num}` : num);
+        
+        // Adicionar tab ou nova linha
+        if ((i + 1) % numeroColunas === 0) {
+            textoFormatado += '\n'; // Nova linha após cada 6 números
+        } else {
+            textoFormatado += '\t'; // Tab entre colunas
+        }
+    }
+    
+    // Usar a API Clipboard para copiar
+    navigator.clipboard.writeText(textoFormatado)
+        .then(() => {
+            // Feedback visual
+            const message = document.createElement('div');
+            message.className = 'alert alert-success mt-2';
+            message.textContent = 'Combinações copiadas para a área de transferência!';
+            document.getElementById('combinacoes').appendChild(message);
+            
+            // Remover mensagem após 3 segundos
+            setTimeout(() => {
+                message.remove();
+            }, 3000);
+        })
+        .catch(err => {
+            console.error('Erro ao copiar: ', err);
+            alert('Não foi possível copiar. Por favor, tente selecionar manualmente.');
+        });
 }
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -976,4 +955,42 @@ function atualizarStatusPaginacao(mensagem) {
     if (paginaInfoElement) {
         paginaInfoElement.textContent = mensagem;
     }
+}
+
+
+// Alternativa para copiar quando a API Clipboard não está disponível
+function copiarTabelaAlternativo(combinacoes) {
+    // Criar um elemento textArea temporário
+    const textArea = document.createElement('textarea');
+    
+    // Formatar dados
+    const numeroColunas = 6;
+    let textoFormatado = '';
+    
+    for (let i = 0; i < combinacoes.length; i++) {
+        const num = parseInt(combinacoes[i]);
+        textoFormatado += (num < 10 ? `0${num}` : num);
+        
+        if ((i + 1) % numeroColunas === 0) {
+            textoFormatado += '\n';
+        } else {
+            textoFormatado += '\t';
+        }
+    }
+    
+    // Configurar e adicionar textArea
+    textArea.value = textoFormatado;
+    document.body.appendChild(textArea);
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    
+    // Selecionar e copiar
+    textArea.select();
+    document.execCommand('copy');
+    
+    // Remover o elemento
+    document.body.removeChild(textArea);
+    
+    // Feedback
+    alert('Combinações copiadas para a área de transferência!');
 }
