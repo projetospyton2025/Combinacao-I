@@ -3,9 +3,9 @@ cls
 echo ======== INICIANDO SERVIDORES EM ORDEM ========
 echo.
 
-echo 1. Iniciando Redis...
-start cmd /k "redis-server.exe"
-timeout /t 5
+@echo 1. Iniciando Redis...
+@start cmd /k "redis-server.exe"
+@timeout /t 5
 
 echo 2. Iniciando Celery...
 cd /d "J:\Meu Drive\ProjetosPython\Loterias\Combinacoes\Combinacao-I"
