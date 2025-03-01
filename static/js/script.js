@@ -221,7 +221,28 @@ async function gerarPalpitesMegaSena() {
             }
         }
     });
+    
+    try {
+        // Após adicionar a tabela ao div palpites:
+        const palpitesDiv = document.getElementById("palpites"); // Certificar-se de que o div está selecionado corretamente
+        const table = document.createElement("table"); // Criando tabela caso necessário
+        palpitesDiv.appendChild(table);
+        
+        // Adicionar botão de cópia
+        const botaoCopiar = document.createElement('button');
+        botaoCopiar.className = 'btn btn-sm btn-outline-primary mt-2';
+        botaoCopiar.innerHTML = 'Copiar palpites para área de transferência';
+        botaoCopiar.onclick = function() {
+            copiarPalpitesParaClipboard(window.combinacoesGeradas);
+        };
+        
+        palpitesDiv.appendChild(botaoCopiar);
+        
+    } catch (error) {
+        console.error("Erro ao gerar palpites:", error);
+    }
 }
+
 
 
 async function carregarPaginaPalpites(quantidadePalpites, pagina, itens_por_pagina = 100) {
@@ -884,6 +905,18 @@ async function gerarPalpitesMegaSena() {
         
         table.appendChild(tbody);
         palpitesDiv.appendChild(table);
+		
+		// Adicionar botão de cópia APÓS exibir os palpites
+			const botaoCopiar = document.createElement('button');
+			botaoCopiar.className = 'btn btn-sm btn-outline-primary mt-2';
+			botaoCopiar.innerHTML = 'Copiar palpites para área de transferência';
+			botaoCopiar.onclick = function() {
+				copiarPalpitesParaClipboard(data.palpites);
+			};
+
+			palpitesDiv.appendChild(botaoCopiar);
+		
+		
         
         // Exibe o card de palpites
         document.getElementById("palpitesCard").style.display = "block";
@@ -1048,4 +1081,103 @@ function copiarTabelaAlternativo(combinacoes) {
     
     // Feedback
     alert('Combinações copiadas para a área de transferência!');
+}
+// Função para copiar palpites da Mega Sena para a área de transferência
+function copiarPalpitesParaClipboard(palpites) {
+    // Formatar para colar no Excel (tabs entre colunas, nova linha entre linhas)
+    let textoFormatado = '';
+    
+    for (let i = 0; i < palpites.length; i++) {
+        const palpite = palpites[i];
+        
+        // Para cada número no palpite
+        for (let j = 0; j < palpite.length; j++) {
+            const num = palpite[j];
+            // Adicionar o número
+            textoFormatado += num;
+            
+            // Adicionar tab ou nova linha
+            if (j < palpite.length - 1) {
+                textoFormatado += '\t'; // Tab entre números do mesmo palpite
+            }
+        }
+        
+        // Nova linha após cada palpite completo
+        textoFormatado += '\n';
+    }
+    
+    // Método 1: Tenta usar a API Clipboard moderna
+    if (navigator.clipboard && window.isSecureContext) {
+        try {
+            navigator.clipboard.writeText(textoFormatado)
+                .then(() => mostrarMensagemSucesso('palpites'))
+                .catch((err) => {
+                    console.error('Erro ao usar clipboard API:', err);
+                    usarMetodoAlternativo();
+                });
+        } catch (err) {
+            console.error('Exceção ao usar clipboard API:', err);
+            usarMetodoAlternativo();
+        }
+    } else {
+        // Método alternativo para navegadores sem suporte à API Clipboard
+        usarMetodoAlternativo();
+    }
+    
+    // Função para usar o método alternativo (textarea + execCommand)
+    function usarMetodoAlternativo() {
+        try {
+            const textArea = document.createElement('textarea');
+            textArea.value = textoFormatado;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '0';
+            textArea.style.top = '0';
+            textArea.style.opacity = '0';
+            textArea.style.pointerEvents = 'none';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            if (successful) {
+                mostrarMensagemSucesso('palpites');
+            } else {
+                mostrarAreaSelecao();
+            }
+        } catch (err) {
+            console.error('Erro ao copiar usando execCommand:', err);
+            mostrarAreaSelecao();
+        }
+    }
+    
+    // Função para mostrar área de seleção manual
+    function mostrarAreaSelecao() {
+        // Criar uma área de texto visível que o usuário pode selecionar manualmente
+        const divSelecao = document.createElement('div');
+        divSelecao.className = 'area-selecao mt-3 p-3 border bg-light';
+        divSelecao.innerHTML = `
+            <p class="mb-2">Não foi possível copiar automaticamente. Selecione o texto abaixo e use Ctrl+C para copiar:</p>
+            <pre class="border p-2 bg-white" style="white-space: pre-wrap; word-break: break-all;">${textoFormatado}</pre>
+            <button class="btn btn-sm btn-secondary mt-2" onclick="this.parentNode.remove()">Fechar</button>
+        `;
+        document.getElementById('palpites').appendChild(divSelecao);
+    }
+}
+
+// Função para mostrar mensagem de sucesso (agora aceita um parâmetro para identificar o container)
+function mostrarMensagemSucesso(container = 'combinacoes') {
+    const message = document.createElement('div');
+    message.className = 'alert alert-success mt-2';
+    message.textContent = container === 'palpites' ? 
+        'Palpites copiados para a área de transferência!' : 
+        'Combinações copiadas para a área de transferência!';
+    
+    document.getElementById(container).appendChild(message);
+    
+    // Remover mensagem após 3 segundos
+    setTimeout(() => {
+        message.remove();
+    }, 3000);
 }

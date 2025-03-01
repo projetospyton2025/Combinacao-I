@@ -7,7 +7,7 @@ from logging.handlers import RotatingFileHandler
 import os
 import random
 import redis
-import time  # Para o caso de uso de sleep no código
+import time  # Parcopiar para a área de transferência o caso de uso de sleep no código
 
 
 # Tenta encontrar e carregar o arquivo .env
