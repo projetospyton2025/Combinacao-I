@@ -630,8 +630,12 @@ async function gerarPalpitesMegaSena() {
     
     try {
         // Adicionar um timeout maior para a requisição
+        //const controller = new AbortController();
+        //const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 segundos de timeout
+
+        // No código do cliente, aumente o timeout para 5 minutos (300000 ms)
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 segundos de timeout
+        const timeoutId = setTimeout(() => controller.abort(), 300000);
         
         const response = await fetch("/gerar_palpites", {
             method: "POST",

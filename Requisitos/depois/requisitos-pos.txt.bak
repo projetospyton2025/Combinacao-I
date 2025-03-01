@@ -656,7 +656,7 @@ if dotenv_path:
 # REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
 # URL do Redis (usar a mesma em todos os componentes)
-REDIS_URL = os.getenv("REDIS_URL", "redis://default:B058xThhTvAbptQa0s25EAGk7A5u473O@redis-13833.c336.samerica-east1-1.gce.redns.redis-cloud.com:13833")
+REDIS_URL = os.getenv('REDIS_URL', 'redis://default:B058xThhTvAbptQa0s25EAGk7A5u473O@redis-13833.c336.samerica-east1-1.gce.redns.redis-cloud.com:13833')
 
 #paralelização.py
 import multiprocessing

@@ -286,6 +286,48 @@ def gerar_palpites_grande_quantidade(numeros_disponiveis, total_palpites):
     
     return palpites
 
+# @app.route("/gerar_palpites", methods=["POST"])
+# def gerar_palpites():
+#     try:
+#         dados = request.get_json()
+#         if not dados:
+#             app.logger.error('Dados JSON não recebidos ou inválidos')
+#             return jsonify({"erro": "Dados JSON inválidos ou não fornecidos"}), 400
+            
+#         combinacoes_formatadas = dados.get("combinacoes", [])
+#         total_palpites = int(dados.get("quantidade", 10))
+        
+#         app.logger.info(f'Gerando {total_palpites} palpites para a Mega Sena.')
+        
+#         # Validação
+#         if not combinacoes_formatadas or total_palpites <= 0:
+#             app.logger.warning('Dados de entrada para geração de palpites inválidos')
+#             return jsonify({"erro": "Dados inválidos"}), 400
+        
+#         # Limitar o número máximo de palpites para evitar timeout
+#         max_palpites = 10000  # Ajuste conforme necessário
+#         if total_palpites > max_palpites:
+#             app.logger.warning(f'Solicitação de {total_palpites} palpites excede o limite de {max_palpites}')
+#             total_palpites = max_palpites
+        
+#         # Definir timeout para evitar que o servidor fique bloqueado
+#         timeout_seconds = 30  # Ajuste conforme necessário
+        
+#         # Usar um timer para limitar o tempo de execução
+#         start_time = time.time()
+#         palpites = gerar_palpites_mega_sena(combinacoes_formatadas, total_palpites)
+#         execution_time = time.time() - start_time
+        
+#         app.logger.info(f'Gerados {len(palpites)} palpites em {execution_time:.2f} segundos')
+        
+#         return jsonify({"total": len(palpites), "palpites": palpites})
+    
+#     except Exception as e:
+#         app.logger.error(f'Erro inesperado ao gerar palpites: {str(e)}')
+#         import traceback
+#         app.logger.error(traceback.format_exc())
+#         return jsonify({"erro": f"Erro inesperado: {str(e)}"}), 500
+
 @app.route("/gerar_palpites", methods=["POST"])
 def gerar_palpites():
     try:
@@ -304,16 +346,12 @@ def gerar_palpites():
             app.logger.warning('Dados de entrada para geração de palpites inválidos')
             return jsonify({"erro": "Dados inválidos"}), 400
         
-        # Limitar o número máximo de palpites para evitar timeout
-        max_palpites = 10000  # Ajuste conforme necessário
-        if total_palpites > max_palpites:
-            app.logger.warning(f'Solicitação de {total_palpites} palpites excede o limite de {max_palpites}')
-            total_palpites = max_palpites
-        
+        # Remova o código de limitação aqui - vamos deixar gerar qualquer quantidade solicitada
+        # Apenas registrar no log para fins de monitoramento
+        if total_palpites > 10000:
+            app.logger.info(f'Gerando uma quantidade grande de palpites: {total_palpites}')
+            
         # Definir timeout para evitar que o servidor fique bloqueado
-        timeout_seconds = 30  # Ajuste conforme necessário
-        
-        # Usar um timer para limitar o tempo de execução
         start_time = time.time()
         palpites = gerar_palpites_mega_sena(combinacoes_formatadas, total_palpites)
         execution_time = time.time() - start_time
@@ -327,6 +365,7 @@ def gerar_palpites():
         import traceback
         app.logger.error(traceback.format_exc())
         return jsonify({"erro": f"Erro inesperado: {str(e)}"}), 500
+
         
 def validar_digitos_unicos(numeros_str):
     """
@@ -360,7 +399,14 @@ def validar_digitos_unicos(numeros_str):
     
     return True, ""    
         
+if __name__ == '__main__':
+    # Aumentar o timeout de resposta do servidor
+    port = int(os.environ.get("PORT", 10000))
+    from werkzeug.serving import run_simple
+    run_simple('0.0.0.0', port, app, threaded=True, use_reloader=True)
 
+"""
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
+"""

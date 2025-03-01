@@ -9,13 +9,12 @@
 	<script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
 	<script src="{{ url_for('static', filename='js/websocket.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/websocket_connect.js') }}"></script>
-	
 </head>
 <body>
     <div class="container mt-5">
         <h1 class="text-center mb-4">Calculadora de Combinações (Digitos)</h1>
-			<p>A tabela abaixo mostra quantas combinações será possivel formar, conforme o total de digitos informado. </p>
-			<p>Acesso também o modal, para as combinações completa.</p>
+			<p>A tabela abaixo mostra quantas combinações será possível formar, conforme o total de digitos informado. </p>
+			<p>Acesso também o modal, para as combinações completas.</p>
 		<table>
 		  <thead>
 			<tr>
@@ -122,6 +121,58 @@
             </tr>
 		  </tbody>
 		</table>
+		
+		<table border="1">
+		  <thead>
+			<tr>
+			  <th>Quantidade de Dígitos</th>
+			  <th>Combinações Possíveis</th>
+			</tr>
+		  </thead>
+		  <tbody>
+			<tr>
+			  <td>1</td>
+			  <td>10 (0 a 9)</td>
+			</tr>
+			<tr>
+			  <td>2</td>
+			  <td>100 (10²)</td>
+			</tr>
+			<tr>
+			  <td>3</td>
+			  <td>1.000 (10³)</td>
+			</tr>
+			<tr>
+			  <td>4</td>
+			  <td>10.000 (10⁴)</td>
+			</tr>
+			<tr>
+			  <td>5</td>
+			  <td>100.000 (10⁵)</td>
+			</tr>
+			<tr>
+			  <td>6</td>
+			  <td>1.000.000 (10⁶)</td>
+			</tr>
+			<tr>
+			  <td>7</td>
+			  <td>10.000.000 (10⁷)</td>
+			</tr>
+			<tr>
+			  <td>8</td>
+			  <td>100.000.000 (10⁸)</td>
+			</tr>
+			<tr>
+			  <td>9</td>
+			  <td>1.000.000.000 (10⁹)</td>
+			</tr>
+			<tr>
+			  <td>10</td>
+			  <td>10.000.000.000 (10¹⁰)</td>
+			</tr>
+		  </tbody>
+		</table>
+
 
         <!-- Botão para abrir o modal com a tabela completa -->
         <div class="text-center mt-3 mb-3">
@@ -269,6 +320,19 @@
 		const socketioUrl = "http://" + window.location.hostname + ":10001";
 		const socket = connectWebSocket(socketioUrl);	
 	</script>
+
+    <script>
+        // Inicializar o Socket.IO quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                const socketioUrl = document.getElementById('socketioUrl').value || "http://" + window.location.hostname + ":10001";
+                console.log("Configurando conexão Socket.IO para:", socketioUrl);
+                window.socket = connectWebSocket(socketioUrl);
+            } catch (e) {
+                console.error("Erro ao configurar Socket.IO:", e);
+            }
+        });
+    </script>
 
 </body>
 </html>
