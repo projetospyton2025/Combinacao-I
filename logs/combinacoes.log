@@ -6,3 +6,7 @@
 2025-03-01 14:26:34,140 INFO: Gerados 128 palpites em 0.01 segundos [in J:\Meu Drive\ProjetosPython\Loterias\Combinacoes\Combinacao-I\app.py:321]
 2025-03-01 14:26:39,039 INFO: Gerando 128 palpites para a Mega Sena. [in J:\Meu Drive\ProjetosPython\Loterias\Combinacoes\Combinacao-I\app.py:300]
 2025-03-01 14:26:39,057 INFO: Gerados 128 palpites em 0.01 segundos [in J:\Meu Drive\ProjetosPython\Loterias\Combinacoes\Combinacao-I\app.py:321]
+2025-03-01 14:48:35,562 INFO: Iniciando aplicação de combinações [in J:\Meu Drive\ProjetosPython\Loterias\Combinacoes\Combinacao-I\app.py:60]
+2025-03-01 14:48:37,801 INFO: Iniciando aplicação de combinações [in J:\Meu Drive\ProjetosPython\Loterias\Combinacoes\Combinacao-I\app.py:60]
+2025-03-01 14:49:01,651 INFO: Calculando combinações para números: 0,1,2,3,4, tamanho: 2 [in J:\Meu Drive\ProjetosPython\Loterias\Combinacoes\Combinacao-I\app.py:94]
+2025-03-01 14:49:01,659 INFO: Geradas 24 combinações, 24 após filtrar números > 60 [in J:\Meu Drive\ProjetosPython\Loterias\Combinacoes\Combinacao-I\app.py:130]
