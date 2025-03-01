@@ -1,7 +1,84 @@
-AO EXECUTAR O SERVIDOR EM http://10.0.0.127:10000/ O ERRO CONTINUA...ISSO NA HORA DE CLICAR NO BOTÃO GERAR PALPITES
-ME MOSTRE O QUE TENHO QUE FAZER PARA RESOLVER.. 
+ESTA TUDO FUNCIONAL  NÃO ALTERE NADA - NÃO MEXA NA LÓGICA FOQUE APENAS NO VOU FALAR
 
 
+# Limitar o número máximo de palpites para evitar timeout
+max_palpites = 10000  # Ajuste conforme necessário
+if total_palpites > max_palpites:
+app.logger.warning(f'Solicitação de {total_palpites} palpites excede o limite de {max_palpites}')
+total_palpites = max_palpites
+
+
+Se você quer remover o limite de palpites e permitir que o sistema gere até o limite teórico calculado, 
+você pode simplesmente remover essa verificação no código. 
+Aqui está como você deve modificar essa parte do código no arquivo app.py:
+
+
+@app.route("/gerar_palpites", methods=["POST"])
+def gerar_palpites():
+    try:
+        dados = request.get_json()
+        if not dados:
+            app.logger.error('Dados JSON não recebidos ou inválidos')
+            return jsonify({"erro": "Dados JSON inválidos ou não fornecidos"}), 400
+            
+        combinacoes_formatadas = dados.get("combinacoes", [])
+        total_palpites = int(dados.get("quantidade", 10))
+        
+        app.logger.info(f'Gerando {total_palpites} palpites para a Mega Sena.')
+        
+        # Validação
+        if not combinacoes_formatadas or total_palpites <= 0:
+            app.logger.warning('Dados de entrada para geração de palpites inválidos')
+            return jsonify({"erro": "Dados inválidos"}), 400
+        
+        # Remova o código de limitação aqui - vamos deixar gerar qualquer quantidade solicitada
+        # Apenas registrar no log para fins de monitoramento
+        if total_palpites > 10000:
+            app.logger.info(f'Gerando uma quantidade grande de palpites: {total_palpites}')
+            
+        # Definir timeout para evitar que o servidor fique bloqueado
+        start_time = time.time()
+        palpites = gerar_palpites_mega_sena(combinacoes_formatadas, total_palpites)
+        execution_time = time.time() - start_time
+        
+        app.logger.info(f'Gerados {len(palpites)} palpites em {execution_time:.2f} segundos')
+        
+        return jsonify({"total": len(palpites), "palpites": palpites})
+    
+    except Exception as e:
+        app.logger.error(f'Erro inesperado ao gerar palpites: {str(e)}')
+        import traceback
+        app.logger.error(traceback.format_exc())
+        return jsonify({"erro": f"Erro inesperado: {str(e)}"}), 500
+
+
+Também é importante ajustar a configuração do servidor Flask para aumentar o timeout e permitir processar 
+requisições por mais tempo. No seu arquivo app.py, você pode adicionar estas linhas antes de iniciar o servidor:
+
+
+if __name__ == '__main__':
+    # Aumentar o timeout de resposta do servidor
+    port = int(os.environ.get("PORT", 10000))
+    from werkzeug.serving import run_simple
+    run_simple('0.0.0.0', port, app, threaded=True, use_reloader=True)
+	
+	
+	
+	
+	No entanto, esteja ciente de que remover esse limite pode ter consequências:
+
+O servidor pode ficar sobrecarregado processando requisições grandes
+Os usuários podem enfrentar timeouts no navegador se a geração demorar muito
+A memória do servidor pode esgotar com conjuntos de dados muito grandes
+
+Uma abordagem mais segura seria implementar um sistema onde grandes quantidades de palpites são geradas em segundo plano e os resultados são armazenados para o usuário baixar posteriormente, em vez de tentar entregar tudo em uma única resposta HTTP.
+Se você realmente precisar entregar grandes quantidades em uma só requisição, considere aumentar os tempos de timeout tanto no servidor quanto no cliente:
+	
+	
+	// No código do cliente, aumente o timeout para 5 minutos (300000 ms)
+const controller = new AbortController();
+const timeoutId = setTimeout(() => controller.abort(), 300000);
+	
 
 
 

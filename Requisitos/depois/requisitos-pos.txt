@@ -1,85 +1,10 @@
-ESTA TUDO FUNCIONAL  NÃO ALTERE NADA - NÃO MEXA NA LÓGICA FOQUE APENAS NO VOU FALAR
-
-
-# Limitar o número máximo de palpites para evitar timeout
-max_palpites = 10000  # Ajuste conforme necessário
-if total_palpites > max_palpites:
-app.logger.warning(f'Solicitação de {total_palpites} palpites excede o limite de {max_palpites}')
-total_palpites = max_palpites
-
-
-Se você quer remover o limite de palpites e permitir que o sistema gere até o limite teórico calculado, 
-você pode simplesmente remover essa verificação no código. 
-Aqui está como você deve modificar essa parte do código no arquivo app.py:
-
-
-@app.route("/gerar_palpites", methods=["POST"])
-def gerar_palpites():
-    try:
-        dados = request.get_json()
-        if not dados:
-            app.logger.error('Dados JSON não recebidos ou inválidos')
-            return jsonify({"erro": "Dados JSON inválidos ou não fornecidos"}), 400
-            
-        combinacoes_formatadas = dados.get("combinacoes", [])
-        total_palpites = int(dados.get("quantidade", 10))
-        
-        app.logger.info(f'Gerando {total_palpites} palpites para a Mega Sena.')
-        
-        # Validação
-        if not combinacoes_formatadas or total_palpites <= 0:
-            app.logger.warning('Dados de entrada para geração de palpites inválidos')
-            return jsonify({"erro": "Dados inválidos"}), 400
-        
-        # Remova o código de limitação aqui - vamos deixar gerar qualquer quantidade solicitada
-        # Apenas registrar no log para fins de monitoramento
-        if total_palpites > 10000:
-            app.logger.info(f'Gerando uma quantidade grande de palpites: {total_palpites}')
-            
-        # Definir timeout para evitar que o servidor fique bloqueado
-        start_time = time.time()
-        palpites = gerar_palpites_mega_sena(combinacoes_formatadas, total_palpites)
-        execution_time = time.time() - start_time
-        
-        app.logger.info(f'Gerados {len(palpites)} palpites em {execution_time:.2f} segundos')
-        
-        return jsonify({"total": len(palpites), "palpites": palpites})
-    
-    except Exception as e:
-        app.logger.error(f'Erro inesperado ao gerar palpites: {str(e)}')
-        import traceback
-        app.logger.error(traceback.format_exc())
-        return jsonify({"erro": f"Erro inesperado: {str(e)}"}), 500
-
-
-Também é importante ajustar a configuração do servidor Flask para aumentar o timeout e permitir processar 
-requisições por mais tempo. No seu arquivo app.py, você pode adicionar estas linhas antes de iniciar o servidor:
-
-
-if __name__ == '__main__':
-    # Aumentar o timeout de resposta do servidor
-    port = int(os.environ.get("PORT", 10000))
-    from werkzeug.serving import run_simple
-    run_simple('0.0.0.0', port, app, threaded=True, use_reloader=True)
-	
-	
-	
-	
-	No entanto, esteja ciente de que remover esse limite pode ter consequências:
-
-O servidor pode ficar sobrecarregado processando requisições grandes
-Os usuários podem enfrentar timeouts no navegador se a geração demorar muito
-A memória do servidor pode esgotar com conjuntos de dados muito grandes
-
-Uma abordagem mais segura seria implementar um sistema onde grandes quantidades de palpites são geradas em segundo plano e os resultados são armazenados para o usuário baixar posteriormente, em vez de tentar entregar tudo em uma única resposta HTTP.
-Se você realmente precisar entregar grandes quantidades em uma só requisição, considere aumentar os tempos de timeout tanto no servidor quanto no cliente:
-	
-	
-	// No código do cliente, aumente o timeout para 5 minutos (300000 ms)
-const controller = new AbortController();
-const timeoutId = setTimeout(() => controller.abort(), 300000);
-	
-
+VOU FAZER O SEGUINTE VOU COMPARTILHAR AQUI TODO O CÓDIGO ASSIM VC CONSEGUE VER ONDE ESTÁ O ERRO... MAS POR FAVOR NÃO MEXA EM OUTRAS PARTES DO CÓDIGO POIS ESTA FUNCIONANDO PERFEITAMENTE.. OK POR FAVOR FOQUE EM DOIS ASSUNTOS.. 
+A PAGINAÇÃO E A FORMATAÇÃO PARA O PADRÃO PORTUGUES.. AQUI NESTA SEÇÃO (Palpites para Mega Sena (Total: 1022192)) QUE SERIA 1.022.192
+A PAGINAÇÃO E A FORMATAÇÃO PARA O PADRÃO PORTUGUES.. AQUI NESTA SEÇÃO (Palpites para Mega Sena (Total: 1022192)) QUE SERIA 1.022.192 - 
+A PAGINAÇÃO E A FORMATAÇÃO PARA O PADRÃO PORTUGUES.. AQUI NESTA SEÇÃO (Palpites para Mega Sena (Total: 1022192)) QUE SERIA 1.022.192 - 
+A PAGINAÇÃO E A FORMATAÇÃO PARA O PADRÃO PORTUGUES.. AQUI NESTA SEÇÃO (Palpites para Mega Sena (Total: 1022192)) QUE SERIA 1.022.192 - 
+A PAGINAÇÃO E A FORMATAÇÃO PARA O PADRÃO PORTUGUES.. AQUI NESTA SEÇÃO (Palpites para Mega Sena (Total: 1022192)) QUE SERIA 1.022.192 - 
+A PAGINAÇÃO E A FORMATAÇÃO PARA O PADRÃO PORTUGUES.. AQUI NESTA SEÇÃO (Palpites para Mega Sena (Total: 1022192)) QUE SERIA 1.022.192 - 
 
 
 Diretório: J:\Meu Drive\ProjetosPython\Loterias\Combinacoes\Combinacao-I
@@ -88,126 +13,35 @@ Diretório: J:\Meu Drive\ProjetosPython\Loterias\Combinacoes\Combinacao-I
 Mode                 LastWriteTime         Length Name
 ----                 -------------         ------ ----
 d-----        23/02/2025     05:58                Requisitos
-d-----        01/03/2025     06:16                templates
+d-----        01/03/2025     12:00                templates
 d-----        23/02/2025     05:58                static
-d-----        01/03/2025     06:21                logs
+d-----        01/03/2025     12:29                logs
 d-----        23/02/2025     05:58                venv
-d-----        28/02/2025     15:23                __pycache__
+d-----        01/03/2025     06:53                __pycache__
 ------        23/02/2025     05:15           1096 LICENSE
 ------        23/02/2025     06:52              0 README.md
 ------        23/02/2025     06:41          10138 combinacaoI.ps1
-------        28/02/2025     15:36          13718 app.py
-------        28/02/2025     16:16           1381 requirements.txt
-------        28/02/2025     11:57            559 .env
+------        01/03/2025     12:06          15561 app.py
+------        01/03/2025     07:44           1454 requirements.txt
+------        01/03/2025     07:24            555 .env
 ------        27/02/2025     05:43            221 .gitignore
-------        28/02/2025     12:15           6048 paralelizacao.py
-------        28/02/2025     12:15           3776 gospers_hack.py
+------        01/03/2025     06:31           6069 paralelizacao.py
+------        01/03/2025     06:31           3796 gospers_hack.py
 ------        28/02/2025     15:18           1110 celery_config.py
 ------        28/02/2025     14:23           7180 celery_tasks.py
 ------        01/03/2025     06:07           3868 socketio_server.py
-------        28/02/2025     14:30           1248 supervisord.conf
-------        01/03/2025     06:04            500 redis_config.py
-------        01/03/2025     06:17            862 start_servers.bat
+------        01/03/2025     06:32           1267 supervisord.conf
+------        01/03/2025     07:24            520 redis_config.py
+------        01/03/2025     07:36            865 start_servers.bat
+------        01/03/2025     06:31            520 redis_config.py.bak
+------        28/02/2025     12:15           6048 paralelizacao.py.bak
+------        28/02/2025     12:15           3776 gospers_hack.py.bak
+------        28/02/2025     14:30           1248 supervisord.conf.bak
+------        01/03/2025     11:26          15877 app.py.bak
+------        28/02/2025     11:57            559 .env.bak
+------        01/03/2025     07:41           1463 requirements.txt.bak
 
 
-[17756] 01 Mar 06:24:02.562 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
-[17756] 01 Mar 06:24:02.562 # Redis version=5.0.14.1, bits=64, commit=ec77f72d, modified=0, pid=17756, just started
-[17756] 01 Mar 06:24:02.562 # Warning: no config file specified, using the default config. In order to specify a config file use redis-server.exe /path/to/redis.conf
-                _._
-           _.-``__ ''-._
-      _.-``    `.  `_.  ''-._           Redis 5.0.14.1 (ec77f72d/0) 64 bit
-  .-`` .-```.  ```\/    _.,_ ''-._
- (    '      ,       .-`  | `,    )     Running in standalone mode
- |`-._`-...-` __...-.``-._|'` _.-'|     Port: 6379
- |    `-._   `._    /     _.-'    |     PID: 17756
-  `-._    `-._  `-./  _.-'    _.-'
- |`-._`-._    `-.__.-'    _.-'_.-'|
- |    `-._`-._        _.-'_.-'    |           http://redis.io
-  `-._    `-._`-.__.-'_.-'    _.-'
- |`-._`-._    `-.__.-'    _.-'_.-'|
- |    `-._`-._        _.-'_.-'    |
-  `-._    `-._`-.__.-'_.-'    _.-'
-      `-._    `-.__.-'    _.-'
-          `-._        _.-'
-              `-.__.-'
-
-[17756] 01 Mar 06:24:02.569 # Server initialized
-[17756] 01 Mar 06:24:02.569 * Ready to accept connections
-
-
-
-Server initialized for eventlet.
-2025-03-01 06:24:19,030 - engineio.server - INFO - Server initialized for eventlet.
-2025-03-01 06:24:19,034 - __main__ - INFO - Iniciando servidor Socket.IO na porta 10001
-2025-03-01 06:24:19,034 - werkzeug - INFO -  * Restarting with stat
-2025-03-01 06:24:19,075 - __main__ - INFO - Iniciando thread de escuta do Redis
-Server initialized for eventlet.
-2025-03-01 06:24:25,865 - engineio.server - INFO - Server initialized for eventlet.
-2025-03-01 06:24:25,868 - __main__ - INFO - Iniciando servidor Socket.IO na porta 10001
-2025-03-01 06:24:25,868 - werkzeug - WARNING -  * Debugger is active!
-2025-03-01 06:24:25,878 - werkzeug - INFO -  * Debugger PIN: 126-240-498
-2025-03-01 06:24:25,945 - __main__ - INFO - Iniciando thread de escuta do Redis
-(5180) wsgi starting up on http://0.0.0.0:10001
-
-
-
- -------------- celery@DESKTOP-S47OMAV v5.4.0 (opalescent)
---- ***** -----
--- ******* ---- Windows-10-10.0.19045-SP0 2025-03-01 06:24:14
-- *** --- * ---
-- ** ---------- [config]
-- ** ---------- .> app:         combinacoes:0x28973d361b0
-- ** ---------- .> transport:   redis://default:**@redis-13833.c336.samerica-east1-1.gce.redns.redis-cloud.com:13833//
-- ** ---------- .> results:     redis://default:**@redis-13833.c336.samerica-east1-1.gce.redns.redis-cloud.com:13833/
-- *** --- * --- .> concurrency: 4 (solo)
--- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
---- ***** -----
- -------------- [queues]
-                .> celery           exchange=celery(direct) key=celery
-
-
-[tasks]
-  . celery_tasks.gerar_palpites_tarefa
-
-[2025-03-01 06:24:14,352: WARNING/MainProcess] J:\Meu Drive\ProjetosPython\Loterias\Combinacoes\Combinacao-I\venv\Lib\site-packages\celery\worker\consumer\consumer.py:508: CPendingDeprecationWarning: The broker_connection_retry configuration setting will no longer determine
-whether broker connection retries are made during startup in Celery 6.0 and above.
-If you wish to retain the existing behavior for retrying connections on startup,
-you should set broker_connection_retry_on_startup to True.
-  warnings.warn(
-
-[2025-03-01 06:24:14,455: INFO/MainProcess] Connected to redis://default:**@redis-13833.c336.samerica-east1-1.gce.redns.redis-cloud.com:13833//
-[2025-03-01 06:24:14,456: WARNING/MainProcess] J:\Meu Drive\ProjetosPython\Loterias\Combinacoes\Combinacao-I\venv\Lib\site-packages\celery\worker\consumer\consumer.py:508: CPendingDeprecationWarning: The broker_connection_retry configuration setting will no longer determine
-whether broker connection retries are made during startup in Celery 6.0 and above.
-If you wish to retain the existing behavior for retrying connections on startup,
-you should set broker_connection_retry_on_startup to True.
-  warnings.warn(
-
-[2025-03-01 06:24:14,499: INFO/MainProcess] mingle: searching for neighbors
-[2025-03-01 06:24:15,724: INFO/MainProcess] mingle: all alone
-[2025-03-01 06:24:15,954: INFO/MainProcess] celery@DESKTOP-S47OMAV ready.
-
-
-✅ Arquivo .env encontrado: J:\Meu Drive\ProjetosPython\Loterias\Combinacoes\Combinacao-I\.env
-🔍 REDIS_URL: redis://default:B058xThhTvAbptQa0s25EAGk7A5u473O@redis-13833.c336.samerica-east1-1.gce.redns.redis-cloud.com:13833
-✅ Conexão com o Redis estabelecida com sucesso!
-[2025-03-01 06:24:20,711] INFO in app: Iniciando aplicação de combinações
- * Serving Flask app 'app' (lazy loading)
- * Environment: development
- * Debug mode: on
- * Restarting with stat
-✅ Arquivo .env encontrado: J:\Meu Drive\ProjetosPython\Loterias\Combinacoes\Combinacao-I\.env
-🔍 REDIS_URL: redis://default:B058xThhTvAbptQa0s25EAGk7A5u473O@redis-13833.c336.samerica-east1-1.gce.redns.redis-cloud.com:13833
-✅ Conexão com o Redis estabelecida com sucesso!
-[2025-03-01 06:24:24,316] INFO in app: Iniciando aplicação de combinações
- * Debugger is active!
- * Debugger PIN: 350-416-125
- * Running on all addresses.
-   WARNING: This is a development server. Do not use it in a production deployment.
- * Running on http://10.0.0.127:10000/ (Press CTRL+C to quit)
- 
- 
- 
- 
 from flask import Flask, render_template, request, jsonify, url_for
 from dotenv import load_dotenv, find_dotenv
 import itertools
@@ -218,7 +52,7 @@ import os
 import random
 import redis
 import time  # Para o caso de uso de sleep no código
-
+import json
 
 # Tenta encontrar e carregar o arquivo .env
 dotenv_path = find_dotenv()
@@ -496,6 +330,7 @@ def gerar_palpites_grande_quantidade(numeros_disponiveis, total_palpites):
     
     return palpites
 
+
 @app.route("/gerar_palpites", methods=["POST"])
 def gerar_palpites():
     try:
@@ -507,36 +342,55 @@ def gerar_palpites():
         combinacoes_formatadas = dados.get("combinacoes", [])
         total_palpites = int(dados.get("quantidade", 10))
         
-        app.logger.info(f'Gerando {total_palpites} palpites para a Mega Sena.')
+        # Parâmetros de paginação
+        pagina = int(dados.get("pagina", 1))
+        itens_por_pagina = int(dados.get("itens_por_pagina", 100))
+        
+        app.logger.info(f'Gerando palpites para a Mega Sena. Total: {total_palpites}, Página: {pagina}, Itens: {itens_por_pagina}')
         
         # Validação
         if not combinacoes_formatadas or total_palpites <= 0:
             app.logger.warning('Dados de entrada para geração de palpites inválidos')
             return jsonify({"erro": "Dados inválidos"}), 400
+
+        # Verificar se estamos tentando gerar muitos palpites
+        if total_palpites > 1000000:
+            app.logger.warning(f'Solicitação de grande volume: {total_palpites} palpites')
         
-        # Limitar o número máximo de palpites para evitar timeout
-        max_palpites = 10000  # Ajuste conforme necessário
-        if total_palpites > max_palpites:
-            app.logger.warning(f'Solicitação de {total_palpites} palpites excede o limite de {max_palpites}')
-            total_palpites = max_palpites
-        
-        # Definir timeout para evitar que o servidor fique bloqueado
-        timeout_seconds = 30  # Ajuste conforme necessário
-        
-        # Usar um timer para limitar o tempo de execução
+        # Gerar palpites - sem limitar a quantidade
         start_time = time.time()
-        palpites = gerar_palpites_mega_sena(combinacoes_formatadas, total_palpites)
-        execution_time = time.time() - start_time
         
+        # Usar a função existente para gerar palpites
+        palpites = gerar_palpites_mega_sena(combinacoes_formatadas, total_palpites)
+        
+        # Calcular índices para paginação
+        inicio = (pagina - 1) * itens_por_pagina
+        fim = min(inicio + itens_por_pagina, len(palpites))
+        
+        # Obter apenas os palpites desta página
+        palpites_pagina = palpites[inicio:fim]
+        
+        # Total de páginas
+        total_paginas = (len(palpites) + itens_por_pagina - 1) // itens_por_pagina
+        
+        execution_time = time.time() - start_time
         app.logger.info(f'Gerados {len(palpites)} palpites em {execution_time:.2f} segundos')
         
-        return jsonify({"total": len(palpites), "palpites": palpites})
+        return jsonify({
+            "total": len(palpites),
+            "palpites": palpites_pagina,
+            "pagina_atual": pagina,
+            "total_paginas": total_paginas,
+            "itens_por_pagina": itens_por_pagina,
+            "itens_nesta_pagina": len(palpites_pagina)
+        })
     
     except Exception as e:
         app.logger.error(f'Erro inesperado ao gerar palpites: {str(e)}')
         import traceback
         app.logger.error(traceback.format_exc())
         return jsonify({"erro": f"Erro inesperado: {str(e)}"}), 500
+
         
 def validar_digitos_unicos(numeros_str):
     """
@@ -570,809 +424,399 @@ def validar_digitos_unicos(numeros_str):
     
     return True, ""    
         
+if __name__ == '__main__':
+    # Aumentar o timeout de resposta do servidor
+    port = int(os.environ.get("PORT", 10000))
+    from werkzeug.serving import run_simple
+    run_simple('0.0.0.0', port, app, threaded=True, use_reloader=True)
 
+"""
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
+"""
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Combinações</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+	<script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+	<script src="{{ url_for('static', filename='js/websocket.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/websocket_connect.js') }}"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Calculadora de Combinações (Digitos)</h1>
+			<p>A tabela abaixo mostra quantas combinações será possível formar, conforme o total de digitos informado. </p>
+			<p>Acesso também o modal, para as combinações completas.</p>
+		<table>
+		  <thead>
+			<tr>
+			  <th>Nº de Dígitos</th>
+			  <th>Agrupamentos de 2 <small>(Concidere as dezenas gêmeas para o nº de dígitos)*</small></th>
+			  <th>Palpites (Mega Sena)</th>
+			</tr>
+		  </thead>
+		  <tbody>
+			<tr>
+			  <td>2 *</td>
+			  <td>2</td>
+			  <td>-</td>
+			</tr>
+			<tr>
+			  <td>3 *</td>
+			  <td>6</td>
+			  <td>1</td>
+			</tr>
+			<tr>
+			  <td>4 *</td>
+			  <td>12</td>
+			  <td>2</td>
+			</tr>
+			<tr>
+			  <td>5 *</td>
+			  <td>20</td>
+			  <td>3</td>
+			</tr>
+			<tr>
+			  <td>6 *</td>
+			  <td>30</td>
+			  <td>5</td>
+			</tr>
+			<tr>
+			  <td>7 *</td>
+			  <td>42</td>
+			  <td>7</td>
+			</tr>
+			<tr>
+			  <td>8 *</td>
+			  <td>56</td>
+			  <td>28</td>
+			</tr>
+			<tr>
+			  <td>9 *</td>
+			  <td>72</td>
+			  <td>84</td>
+			</tr>
+			<tr>
+			  <td>10 *</td>
+			  <td>90</td>
+			  <td>210</td>
+			</tr>
+			<tr>
+			  <td>11 *</td>
+			  <td>110</td>
+			  <td>462</td>
+			</tr>
+			<tr>
+			  <td>12 *</td>
+			  <td>132</td>
+			  <td>924</td>
+			</tr>
+            <tr>
+              <td>13 *</td>
+              <td>156</td>
+              <td>1.716</td>
+            </tr>
+            <tr>
+              <td>14 *</td>
+              <td>182</td>
+              <td>3.003</td>
+            </tr>
+            <tr>
+              <td>15 *</td>
+              <td>210</td>
+              <td>5.005</td>
+            </tr>
+            <tr>
+              <td>16 *</td>
+              <td>240</td>
+              <td>8.008</td>
+            </tr>
+            <tr>
+              <td>17 *</td>
+              <td>272</td>
+              <td>12.376</td>
+            </tr>
+            <tr>
+              <td>18 *</td>
+              <td>306</td>
+              <td>18.564</td>
+            </tr>
+            <tr>
+              <td>19 *</td>
+              <td>342</td>
+              <td>27.132</td>
+            </tr>
+            <tr>
+              <td>20 *</td>
+              <td>380</td>
+              <td>38.760</td>
+            </tr>
+		  </tbody>
+		</table>
+		
+
+
+        <!-- Botão para abrir o modal com a tabela completa -->
+        <div class="text-center mt-3 mb-3">
+          <button class="btn btn-primary" onclick="abrirModal()">Ver Tabela Completa (até 60 dígitos) *</button>
+        </div>
+        
+<hr /><hr />
+<table>
+	<thead>
+	  <tr>
+		<th>Quantidade de Dígitos</th>
+		<th>Combinações Possíveis</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  <tr>
+		<td>1</td>
+		<td>(0 a 9) 10 </td>
+	  </tr>
+	  <tr>
+		<td>2</td>
+		<td>(10²) 100 </td>
+	  </tr>
+	  <tr>
+		<td>3</td>
+		<td>(10³) 1.000 </td>
+	  </tr>
+	  <tr>
+		<td>4</td>
+		<td>(10⁴) 10.000</td>
+	  </tr>
+	  <tr>
+		<td>5</td>
+		<td>(10⁵) 100.000</td>
+	  </tr>
+	  <tr>
+		<td>6</td>
+		<td>(10⁶) 1.000.000</td>
+	  </tr>
+	  <tr>
+		<td>7</td>
+		<td>(10⁷) 10.000.000</td>
+	  </tr>
+	  <tr>
+		<td>8</td>
+		<td>(10⁸) 100.000.000</td>
+	  </tr>
+	  <tr>
+		<td>9</td>
+		<td>(10⁹) 1.000.000.000</td>
+	  </tr>
+	  <tr>
+		<td>10</td>
+		<td>(10¹⁰) 10.000.000.000</td>
+	  </tr>
+	</tbody>
+  </table>
+
+
+			<hr /><hr />
+<div class="card">
+    <div class="card-body">
+        <form id="formCombinacoes" onsubmit="calcularCombinacoes(event)">
+            <div class="mb-3">
+                <label for="numeros" class="form-label">Digite os números (separados por vírgula):</label>
+                <input type="text" class="form-control" id="numeros" required placeholder="ex: 1,2,0">
+                <div class="error-message" id="numerosError"></div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="tamanho" class="form-label">Tamanho do agrupamento:</label>
+                <!-- O tamanho do agrupamento é fixo e não pode ser alterado -->
+                <input type="number" class="form-control" id="tamanho" value="2" readonly required>
+                <div class="error-message" id="tamanhoError"></div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Calcular Combinações</button>
+        </form>
+    </div>
+</div>
+
+<div class="mt-4">
+		<div class="alert alert-info" id="totalCombinacoes" style="display: none;">
+			Total de Combinações: <span id="total" class="badge bg-primary fs-4">0</span>
+		</div>
+		
+		<div class="card mt-3" id="resultadoCard" style="display: none;">
+			<div class="card-header">
+				Combinações Encontradas
+			</div>
+			<div class="card-body resultado-box">
+				<div id="combinacoes"></div>
+			</div>
+		</div>
+		
+		<hr /><hr />
+
+		<div id="palpitesControle" class="card mt-3" style="display: none;">
+		  <div class="card-header bg-success text-white">
+			Gerar Palpites para Mega Sena
+		  </div>
+		  <div class="card-body">
+			<div class="row mb-2">
+			  <div class="col-12">
+				<div class="alert alert-info p-2">
+				  <small>Com estes números é possível formar até <strong id="totalTeorico">0</strong> palpites diferentes para a Mega Sena.</small>
+				</div>
+			  </div>
+			</div>
+			<div class="row align-items-center">
+			  <div class="col-md-7">
+				<label for="quantidadePalpites" class="form-label">Quantidade de palpites a gerar:</label>
+				<input type="range" class="form-range" id="quantidadePalpites" min="1" max="100" value="10">
+				<div class="d-flex justify-content-between mt-1">
+				  <span>1</span>
+				  <span class="text-center"><span id="valorQuantidadePalpites">10</span> de <span id="valorMaximo">100</span></span>
+				  <span id="maxValue">Max</span>
+				</div>
+			  </div>
+			  <div class="col-md-5">
+				<button type="button" class="btn btn-success w-100" onclick="gerarPalpitesMegaSena()">
+				  Gerar Palpites
+				</button>
+			  </div>
+			</div>
+		  </div>
+		</div>
+
+
+	<!-- O card de palpites com suporte a paginação -->
+	<!--
+	<div class="card mt-3" id="palpitesCard" style="display: none;">
+		<div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+			<div>Palpites para Mega Sena (Total: <span id="totalPalpites">0</span>)</div>
+			<div id="paginaInfo" class="badge bg-light text-dark">Página 0 de 0</div>
+		</div>
+		<div class="card-body resultado-box">
+			<div id="palpites"></div>
+		</div>
+	</div>
+	-->
 	
-	# celery_config.py
-from celery import Celery
-import os
-
-# Configuração do Redis como broker e backend
-# redis_url = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
-
-# Configuração do Redis como broker e backend
-redis_url = os.environ.get('REDIS_URL', 'redis://default:B058xThhTvAbptQa0s25EAGk7A5u473O@redis-13833.c336.samerica-east1-1.gce.redns.redis-cloud.com:13833')
-
-# Inicialização do Celery
-celery_app = Celery(
-    'combinacoes',
-    broker=redis_url,
-    backend=redis_url,
-    include=['celery_tasks']  # Módulo onde as tarefas estão definidas
-)
-
-# Configurações do Celery
-celery_app.conf.update(
-    task_serializer='json',
-    accept_content=['json'],
-    result_serializer='json',
-    timezone='America/Sao_Paulo',
-    enable_utc=True,
-    task_track_started=True,
-    task_time_limit=3600,  # Limite de 1 hora por tarefa
-    worker_max_tasks_per_child=10,  # Reinicia o worker após 10 tarefas
-    worker_prefetch_multiplier=4,  # Equilibra a carga entre workers
-)
-
-# Para iniciar o Celery, execute:
-# celery -A celery_config worker --loglevel=info
-
-# socketio_server.py
-import os
-import json
-import redis
-import threading
-from flask import Flask, request
-from flask_socketio import SocketIO
-import logging
-from dotenv import load_dotenv, find_dotenv
-
-# Carregar variáveis de ambiente do arquivo .env
-dotenv_path = find_dotenv()
-if dotenv_path:
-    load_dotenv(dotenv_path)
-
-# Configuração de logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
-# Configuração do Redis
-# redis_url = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
-# redis_client = redis.Redis.from_url(redis_url, decode_responses=True)
-
-# Configuração do Redis
-redis_url = os.environ.get('REDIS_URL', 'redis://default:B058xThhTvAbptQa0s25EAGk7A5u473O@redis-13833.c336.samerica-east1-1.gce.redns.redis-cloud.com:13833')
-redis_client = redis.Redis.from_url(redis_url, decode_responses=True)
-
-# Inicialização do Flask e Socket.IO
-app = Flask(__name__)
-
-# Ao configurar o SocketIO, modifique para:
-socketio = SocketIO(
-    app, 
-    cors_allowed_origins=["*"],  # Permitir todas as origens durante desenvolvimento
-    async_mode='eventlet',
-    logger=True,  # Ativar logs para identificar problemas
-    engineio_logger=True
-)
-
-# Thread para escutar mensagens do Redis
-def redis_listener():
-    """
-    Ouve mensagens de progresso no Redis e as envia para os clientes via Socket.IO
-    """
-    pubsub = redis_client.pubsub()
-    # Inscrever-se em todos os canais de progresso de tarefas
-    pubsub.psubscribe('task_progress:*')
-    
-    logger.info("Iniciando thread de escuta do Redis")
-    
-    for message in pubsub.listen():
-        try:
-            if message['type'] == 'pmessage':
-                # Extrair o ID da tarefa do canal
-                channel = message['channel']
-                task_id = channel.split(':')[1]
-                
-                # Analisar a mensagem JSON
-                data = json.loads(message['data'])
-                
-                # Enviar para os clientes inscritos nesta tarefa
-                logger.info(f"Enviando atualização para tarefa {task_id}: {data['status']}")
-                socketio.emit(f'task_update:{task_id}', data)
-        except Exception as e:
-            logger.error(f"Erro no processamento de mensagem Redis: {str(e)}")
-
-# Iniciar a thread do Redis na inicialização
-@socketio.on('connect')
-def handle_connect():
-    logger.info(f"Cliente conectado: {request.sid}")
-
-@socketio.on('subscribe')
-def handle_subscribe(data):
-    """
-    Cliente se inscreve para receber atualizações de uma tarefa específica
-    """
-    task_id = data.get('task_id')
-    if not task_id:
-        return {'error': 'ID da tarefa não fornecido'}
-    
-    logger.info(f"Cliente {request.sid} inscrito na tarefa {task_id}")
-    
-    # Verificar se já temos o resultado armazenado
-    result_key = f'task_result:{task_id}'
-    stored_result = redis_client.get(result_key)
-    
-    if stored_result:
-        # A tarefa já foi concluída, enviar o resultado imediatamente
-        result_data = json.loads(stored_result)
-        socketio.emit(f'task_update:{task_id}', {
-            'status': 'completed',
-            'progress': 100,
-            'result': result_data
-        }, room=request.sid)
-        return {'success': True, 'message': 'Resultado já disponível'}
-    
-    return {'success': True, 'message': 'Inscrito para atualizações'}
-
-# Iniciar a thread do Redis
-redis_thread = threading.Thread(target=redis_listener, daemon=True)
-redis_thread.start()
-
-if __name__ == '__main__':
-    port = int(os.environ.get("SOCKETIO_PORT", 10001))
-    logger.info(f"Iniciando servidor Socket.IO na porta {port}")
-    socketio.run(app, host='0.0.0.0', port=port, debug=True)
+	<div class="card mt-3" id="palpitesCard" style="display: none;">
+		<div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+			<div>Palpites para Mega Sena (Total: <span id="totalPalpites">0</span>)</div>
+			<div>
+				<span id="paginaInfo" class="badge bg-light text-dark me-2">Carregando...</span>
+				<button id="btnRecarregarPalpites" class="btn btn-sm btn-light" onclick="reiniciarPalpites()" title="Reiniciar carregamento"></button>
+			</div>
+		</div>
+			<div class="card-body resultado-box">
+				<div id="palpites"></div>
+			</div>
+	</div>
 	
-	#redis_config.py
-
-import os
-from dotenv import load_dotenv, find_dotenv
-
-# Carrega variáveis de ambiente
-dotenv_path = find_dotenv()
-if dotenv_path:
-    load_dotenv(dotenv_path)
-
-# URL do Redis (usar a mesma em todos os componentes)
-# REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
-
-# URL do Redis (usar a mesma em todos os componentes)
-REDIS_URL = os.getenv('REDIS_URL', 'redis://default:B058xThhTvAbptQa0s25EAGk7A5u473O@redis-13833.c336.samerica-east1-1.gce.redns.redis-cloud.com:13833')
-
-#paralelização.py
-import multiprocessing
-import numpy as np
-from concurrent.futures import ProcessPoolExecutor, as_completed
-import time
-import os
-import logging
-
-def gerar_palpites_chunk(args):
-    """
-    Função para gerar um chunk de palpites, será chamada por cada processo
-    
-    Args:
-        args (tuple): (chunk_id, numeros_disponiveis, quantidade_no_chunk, seed)
-        
-    Returns:
-        list: Lista de palpites gerados neste chunk
-    """
-    chunk_id, numeros_disponiveis, quantidade, seed = args
-    
-    # Definir uma semente para reprodutibilidade, mas diferente para cada chunk
-    np.random.seed(seed + chunk_id)
-    import random
-    random.seed(seed + chunk_id)
-    
-    # Usar uma função existente para gerar palpites
-    # Podemos usar a função gospers_hack ou qualquer outra otimizada
-    palpites = gerar_palpites_mega_sena_gosper(numeros_disponiveis, quantidade)
-    
-    return palpites
-
-def gerar_palpites_paralelo(numeros_disponiveis, total_palpites, max_workers=None):
-    """
-    Gera palpites de forma paralela, dividindo o trabalho em múltiplos processos
-    
-    Args:
-        numeros_disponiveis (list): Lista de números disponíveis para formar palpites
-        total_palpites (int): Número total de palpites a serem gerados
-        max_workers (int, optional): Número máximo de processos, padrão é None (usa CPUs disponíveis)
-        
-    Returns:
-        list: Lista de palpites, onde cada palpite é uma lista de 6 números
-    """
-    import time
-    inicio = time.time()
-    
-    # Determinar número de processos
-    if max_workers is None:
-        max_workers = max(1, multiprocessing.cpu_count() - 1)  # Deixar 1 CPU livre
-    
-    # Dividir o trabalho em chunks
-    chunks = min(max_workers, total_palpites)
-    palpites_por_chunk = [total_palpites // chunks] * chunks
-    
-    # Distribuir o restante
-    resto = total_palpites % chunks
-    for i in range(resto):
-        palpites_por_chunk[i] += 1
-    
-    # Preparar argumentos para cada processo
-    seed = int(time.time())
-    args_list = [
-        (i, numeros_disponiveis, palpites_por_chunk[i], seed) 
-        for i in range(chunks)
-    ]
-    
-    # Usar ProcessPoolExecutor para processamento paralelo
-    palpites_resultado = []
-    with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        # Submeter tarefas
-        futures = [executor.submit(gerar_palpites_chunk, args) for args in args_list]
-        
-        # Coletar resultados à medida que eles são concluídos
-        for future in as_completed(futures):
-            try:
-                # Adicionar palpites deste chunk ao resultado
-                palpites_chunk = future.result()
-                palpites_resultado.extend(palpites_chunk)
-            except Exception as e:
-                logging.error(f"Erro no processamento de um chunk: {e}")
-    
-    # Remover possíveis duplicatas (pode acontecer entre chunks)
-    palpites_unicos = []
-    palpites_set = set()
-    
-    for palpite in palpites_resultado:
-        palpite_tuple = tuple(palpite)
-        if palpite_tuple not in palpites_set:
-            palpites_set.add(palpite_tuple)
-            palpites_unicos.append(palpite)
-    
-    # Limitar ao total solicitado (pode haver excesso devido à divisão em chunks)
-    palpites_finais = palpites_unicos[:total_palpites]
-    
-    fim = time.time()
-    logging.info(f"Gerados {len(palpites_finais)} palpites em {fim - inicio:.2f} segundos usando {chunks} processos")
-    
-    return palpites_finais
-
-# Implementar no endpoint Flask
-def integrar_na_app(app):
-    """
-    Integra as funções paralelas na aplicação Flask
-    """
-    @app.route("/gerar_palpites_paralelo", methods=["POST"])
-    def gerar_palpites_endpoint():
-        try:
-            dados = request.get_json()
-            combinacoes_formatadas = dados.get("combinacoes", [])
-            total_palpites = int(dados.get("quantidade", 10))
-            
-            app.logger.info(f'Gerando {total_palpites} palpites para a Mega Sena usando paralelização.')
-            
-            # Validação
-            if not combinacoes_formatadas or total_palpites <= 0:
-                app.logger.warning('Dados de entrada para geração de palpites inválidos')
-                return jsonify({"erro": "Dados inválidos"}), 400
-            
-            # Usar a função de extração de números existente
-            numeros_unicos = set()
-            for combinacao in combinacoes_formatadas:
-                i = 0
-                while i < len(combinacao):
-                    if i + 1 < len(combinacao):
-                        try:
-                            num_str = combinacao[i:i+2]
-                            numero = int(num_str)
-                            if 1 <= numero <= 60:
-                                numeros_unicos.add(numero)
-                        except ValueError:
-                            pass
-                    i += 2
-            
-            numeros_disponiveis = list(numeros_unicos)
-            
-            # Se não houver números suficientes, complementar
-            if len(numeros_disponiveis) < 6:
-                import random
-                numeros_faltantes = set(range(1, 61)) - set(numeros_disponiveis)
-                numeros_complementares = random.sample(list(numeros_faltantes), 6 - len(numeros_disponiveis))
-                numeros_disponiveis.extend(numeros_complementares)
-            
-            # Gerar palpites usando paralelização
-            palpites = gerar_palpites_paralelo(numeros_disponiveis, total_palpites)
-            
-            app.logger.info(f'Gerados {len(palpites)} palpites em paralelo')
-            
-            return jsonify({"total": len(palpites), "palpites": palpites})
-        
-        except Exception as e:
-            app.logger.error(f'Erro inesperado ao gerar palpites: {str(e)}')
-            return jsonify({"erro": f"Erro inesperado: {str(e)}"}), 500
-			
-			#gospers_hack.py
-
-def gospers_hack(k, n):
-    """
-    Algoritmo de Gosper's Hack para gerar combinações de k elementos de um conjunto de n elementos.
-    Esta implementação é extremamente eficiente para grandes conjuntos.
-    
-    Args:
-        k (int): Tamanho da combinação
-        n (int): Tamanho do conjunto
-    
-    Yields:
-        list: Cada combinação como uma lista de índices
-    """
-    # Valor inicial: os k primeiros bits estão ligados
-    mask = (1 << k) - 1
-    
-    while mask < (1 << n):
-        # Converter bits para lista de índices
-        yield [i for i in range(n) if (mask & (1 << i))]
-        
-        # Próxima combinação lexicográfica usando manipulação de bits
-        c = mask & -mask
-        r = mask + c
-        mask = (((r ^ mask) >> 2) // c) | r
-
-# Função para gerar palpites usando Gosper's Hack
-def gerar_palpites_mega_sena_gosper(numeros_disponiveis, total_palpites):
-    """
-    Gera palpites para a Mega Sena usando o algoritmo de Gosper's Hack.
-    
-    Args:
-        numeros_disponiveis (list): Lista de números disponíveis para formar palpites
-        total_palpites (int): Número de palpites a serem gerados
-        
-    Returns:
-        list: Lista de palpites, onde cada palpite é uma lista de 6 números
-    """
-    import random
-    
-    n = len(numeros_disponiveis)
-    if n < 6:
-        # Não temos números suficientes, precisamos complementar
-        raise ValueError("Número insuficiente de números disponíveis")
-    
-    palpites = []
-    palpites_set = set()  # Para verificação rápida de duplicatas
-    
-    # Se temos muitos números, vamos usar uma abordagem mais eficiente
-    if n > 60:  # Número grande de possibilidades
-        # Vamos tentar gerar aleatoriamente os primeiros palpites
-        for _ in range(min(total_palpites, 1000)):  # Limitamos a 1000 tentativas aleatórias
-            indices = sorted(random.sample(range(n), 6))
-            palpite = tuple(sorted(numeros_disponiveis[i] for i in indices))
-            
-            if palpite not in palpites_set:
-                palpites_set.add(palpite)
-                palpites.append(list(palpite))
-                
-                if len(palpites) >= total_palpites:
-                    return palpites
-        
-        # Se ainda precisamos de mais palpites, usamos Gosper's Hack
-        if len(palpites) < total_palpites:
-            # Embaralhar para diversidade
-            indices = list(range(n))
-            random.shuffle(indices)
-            numeros_permutados = [numeros_disponiveis[i] for i in indices]
-            
-            # Gerar combinações usando Gosper's Hack
-            for combo_indices in gospers_hack(6, min(n, 50)):  # Limitamos a 50 elementos para eficiência
-                palpite = tuple(sorted(numeros_permutados[i] for i in combo_indices))
-                
-                if palpite not in palpites_set:
-                    palpites_set.add(palpite)
-                    palpites.append(list(palpite))
-                    
-                    if len(palpites) >= total_palpites:
-                        return palpites
-    else:
-        # Para conjuntos menores, Gosper's Hack é ideal
-        all_combinations = list(gospers_hack(6, n))
-        random.shuffle(all_combinations)  # Embaralhar para diversidade
-        
-        for combo_indices in all_combinations:
-            palpite = tuple(sorted(numeros_disponiveis[i] for i in combo_indices))
-            
-            if palpite not in palpites_set:
-                palpites_set.add(palpite)
-                palpites.append(list(palpite))
-                
-                if len(palpites) >= total_palpites:
-                    break
-    
-    return palpites
+	<!--
+	<div class="card mt-3" id="palpitesCard" style="display: none;">
+		<div class="card-header bg-success text-white">
+			Palpites para Mega Sena (Total: <span id="totalPalpites">0</span>)
+		</div>
+		<div class="card-body resultado-box">
+			<div id="palpites"></div>
+		</div>
+	</div>
+	-->
 	
-# celery_tasks.py
-import time
-import random
-import logging
-from celery import Task
-from celery.utils.log import get_task_logger
-from celery_config import celery_app
-import redis
-import json
+	
+	
+</div>
+	
+	<footer>Feito por: <i>Márcio Fernando Maia -  Todos os direitos reservado - 2025</footer>
 
-# Configurar o logger
-logger = get_task_logger(__name__)
+    <!-- Modal da tabela completa -->
+    <div id="modalTabelaCompleta" class="modal-tabela">
+      <div class="modal-conteudo">
+        <div class="modal-header">
+          <h2>Tabela Completa - Até 60 Dígitos</h2>
+          <span class="fechar-modal" onclick="fecharModal()">&times;</span>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Nº de Dígitos</th>
+                <th>Agrupamentos de 2</th>
+                <th>Palpites (Mega Sena)</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaCompletaBody">
+              <!-- Será preenchido via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
-# Configuração do Redis para comunicação em tempo real
-redis_client = redis.Redis.from_url(
-    celery_app.conf.broker_url, 
-    decode_responses=True
-)
+    <input type="hidden" id="socketioUrl" value="{{ socketio_url }}">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 
-# Importar as funções de geração otimizadas
-from gospers_hack import gerar_palpites_mega_sena_gosper
-from paralelizacao import gerar_palpites_paralelo
-
-class PaleitosTask(Task):
-    """Classe base personalizada para tarefas de geração de palpites que rastreia o progresso"""
-    
-    def on_success(self, retval, task_id, args, kwargs):
-        """Chamado quando a tarefa é concluída com sucesso"""
-        # Atualizar o canal Redis com status de conclusão
-        redis_client.publish(
-            f'task_progress:{task_id}',
-            json.dumps({
-                'status': 'completed',
-                'progress': 100,
-                'total_gerado': retval.get('total', 0)
-            })
-        )
-        # Armazenar o resultado por 1 hora (3600 segundos)
-        redis_client.setex(
-            f'task_result:{task_id}',
-            3600,
-            json.dumps(retval)
-        )
-        return super().on_success(retval, task_id, args, kwargs)
-    
-    def on_failure(self, exc, task_id, args, kwargs, einfo):
-        """Chamado quando a tarefa falha"""
-        # Atualizar o canal Redis com status de falha
-        redis_client.publish(
-            f'task_progress:{task_id}',
-            json.dumps({
-                'status': 'failed',
-                'error': str(exc)
-            })
-        )
-        return super().on_failure(exc, task_id, args, kwargs, einfo)
-
-@celery_app.task(bind=True, base=PaleitosTask)
-def gerar_palpites_tarefa(self, combinacoes_formatadas, total_palpites):
-    """
-    Tarefa Celery para gerar palpites da Mega Sena em segundo plano
-    com atualizações de progresso em tempo real
-    """
-    task_id = self.request.id
-    
-    try:
-        logger.info(f'Iniciando geração de {total_palpites} palpites. Task ID: {task_id}')
-        
-        # Publicar status inicial
-        redis_client.publish(
-            f'task_progress:{task_id}',
-            json.dumps({
-                'status': 'started',
-                'progress': 0,
-                'total_solicitado': total_palpites
-            })
-        )
-        
-        # Extrair números das combinações
-        numeros_unicos = set()
-        for combinacao in combinacoes_formatadas:
-            i = 0
-            while i < len(combinacao):
-                if i + 1 < len(combinacao):
-                    try:
-                        num_str = combinacao[i:i+2]
-                        numero = int(num_str)
-                        if 1 <= numero <= 60:
-                            numeros_unicos.add(numero)
-                    except ValueError:
-                        pass
-                i += 2
-        
-        numeros_disponiveis = list(numeros_unicos)
-        
-        # Publicar progresso de processamento de dados
-        redis_client.publish(
-            f'task_progress:{task_id}',
-            json.dumps({
-                'status': 'processing',
-                'progress': 10,
-                'message': f'Encontrados {len(numeros_disponiveis)} números únicos'
-            })
-        )
-        
-        # Complementar se necessário
-        if len(numeros_disponiveis) < 6:
-            numeros_faltantes = set(range(1, 61)) - set(numeros_disponiveis)
-            numeros_complementares = random.sample(list(numeros_faltantes), 6 - len(numeros_disponiveis))
-            numeros_disponiveis.extend(numeros_complementares)
-        
-        # Para grandes quantidades, dividir o processamento em blocos com atualizações de progresso
-        if total_palpites > 1000:
-            palpites = []
-            blocos = min(10, total_palpites // 100)  # Dividir em até 10 blocos
-            palpites_por_bloco = total_palpites // blocos
+    <!-- Card para processamento assíncrono -->
+    <div class="card mt-3" id="processamentoAssincrono" style="display: none;">
+        <div class="card-header bg-info text-white">
+            Processamento em Segundo Plano
+        </div>
+        <div class="card-body">
+            <div class="progress mb-3">
+                <div id="progressoTarefa" class="progress-bar progress-bar-striped progress-bar-animated" 
+                     role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
             
-            for i in range(blocos):
-                # Gerar este bloco de palpites
-                inicio_bloco = time.time()
-                
-                if i == blocos - 1:
-                    # Último bloco pega o resto
-                    qtd_bloco = total_palpites - len(palpites)
-                else:
-                    qtd_bloco = palpites_por_bloco
-                
-                # Usar paralelização para este bloco
-                palpites_bloco = gerar_palpites_paralelo(
-                    numeros_disponiveis, 
-                    qtd_bloco
-                )
-                
-                # Adicionar ao resultado total
-                palpites.extend(palpites_bloco)
-                
-                # Calcular e publicar progresso
-                progresso = min(95, 10 + (85 * (i + 1) // blocos))
-                redis_client.publish(
-                    f'task_progress:{task_id}',
-                    json.dumps({
-                        'status': 'processing',
-                        'progress': progresso,
-                        'current': len(palpites),
-                        'total': total_palpites,
-                        'message': f'Gerados {len(palpites)} de {total_palpites} palpites'
-                    })
-                )
-                
-                logger.info(f'Bloco {i+1}/{blocos}: Gerados {len(palpites_bloco)} palpites em {time.time() - inicio_bloco:.2f} segundos')
-        else:
-            # Para quantidades menores, fazer tudo de uma vez
-            palpites = gerar_palpites_mega_sena_gosper(numeros_disponiveis, total_palpites)
+            <div id="mensagemTarefa" class="alert alert-info">
+                <div class="spinner-border spinner-border-sm" role="status">
+                    <span class="visually-hidden">Carregando...</span>
+                </div>
+                <span id="statusTarefa">Iniciando processamento...</span>
+            </div>
             
-            # Publicar progresso
-            redis_client.publish(
-                f'task_progress:{task_id}',
-                json.dumps({
-                    'status': 'processing',
-                    'progress': 90,
-                    'current': len(palpites),
-                    'total': total_palpites
-                })
-            )
-        
-        # Garantir que temos exatamente o número solicitado
-        palpites = palpites[:total_palpites]
-        
-        # Preparar o resultado final
-        resultado = {
-            "total": len(palpites),
-            "palpites": palpites
-        }
-        
-        # Armazenar o resultado no Redis por 1 hora
-        redis_client.setex(
-            f'task_result:{task_id}',
-            3600,  # 1 hora
-            json.dumps(resultado)
-        )
-        
-        logger.info(f'Concluída geração de {len(palpites)} palpites. Task ID: {task_id}')
-        
-        return resultado
-        
-    except Exception as e:
-        logger.error(f'Erro na geração de palpites: {str(e)}')
-        # Publicar erro
-        redis_client.publish(
-            f'task_progress:{task_id}',
-            json.dumps({
-                'status': 'error',
-                'message': str(e)
-            })
-        )
-        raise  # Relançar para o Celery lidar
+            <div id="controlesTarefa">
+                <button id="btnNovoProcessamento" class="btn btn-outline-primary" style="display: none;">
+                    Iniciar Novo Processamento
+                </button>
+            </div>
+        </div>
+    </div>
+	
+	<script>
+		// Configuração do WebSocket
+		const socketioUrl = "http://" + window.location.hostname + ":10001";
+		const socket = connectWebSocket(socketioUrl);	
+	</script>
 
-
-
-// websocket.js
-// Gerenciamento de conexão WebSocket e atualizações de progresso
-let socket = null;
-let currentTaskId = null;
-
-// Inicializar Socket.IO
-function initSocketIO(socketioUrl) {
-    if (socket) return; // Já inicializado
-    
-    try {
-        socket = io(socketioUrl);
-        
-        socket.on('connect', () => {
-            console.log('Conectado ao servidor Socket.IO');
-            if (currentTaskId) {
-                subscribeToTask(currentTaskId);
+    <script>
+        // Inicializar o Socket.IO quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                const socketioUrl = document.getElementById('socketioUrl').value || "http://" + window.location.hostname + ":10001";
+                console.log("Configurando conexão Socket.IO para:", socketioUrl);
+                window.socket = connectWebSocket(socketioUrl);
+            } catch (e) {
+                console.error("Erro ao configurar Socket.IO:", e);
             }
         });
-        
-        socket.on('connect_error', (error) => {
-            console.error('Erro de conexão Socket.IO:', error);
-            mostrarErroConexao();
-        });
-    } catch (e) {
-        console.error('Erro ao inicializar Socket.IO:', e);
-        mostrarErroConexao();
-    }
-}
+    </script>
 
-// Inscrever-se para atualizações de uma tarefa
-function subscribeToTask(taskId) {
-    if (!socket) return false;
-    
-    currentTaskId = taskId;
-    
-    // Inscrever-se no canal desta tarefa
-    socket.emit('subscribe', { task_id: taskId });
-    
-    // Definir o manipulador de eventos para esta tarefa
-    socket.on(`task_update:${taskId}`, (data) => {
-        atualizarProgressoTarefa(data);
-    });
-    
-    return true;
-}
-
-// Atualizar a interface com o progresso da tarefa
-function atualizarProgressoTarefa(data) {
-    console.log('Atualização de tarefa:', data);
-    
-    const progressBar = document.getElementById('progressoTarefa');
-    const statusMsg = document.getElementById('statusTarefa');
-    const mensagemTarefa = document.getElementById('mensagemTarefa');
-    const btnNovo = document.getElementById('btnNovoProcessamento');
-    
-    // Atualizar a barra de progresso
-    if (progressBar) {
-        progressBar.style.width = `${data.progress || 0}%`;
-        progressBar.setAttribute('aria-valuenow', data.progress || 0);
-    }
-    
-    // Atualizar mensagem de status
-    if (statusMsg) {
-        if (data.message) {
-            statusMsg.textContent = data.message;
-        } else if (data.status === 'completed') {
-            statusMsg.textContent = `Processamento concluído! Gerados ${data.total_gerado} palpites.`;
-            
-            // Mostrar os resultados
-            processarResultadoPalpites(data.result);
-            
-            // Mostrar botão para novo processamento
-            if (btnNovo) btnNovo.style.display = 'inline-block';
-            
-            // Atualizar classe da mensagem
-            if (mensagemTarefa) mensagemTarefa.className = 'alert alert-success';
-        } else if (data.status === 'processing') {
-            if (data.current && data.total) {
-                statusMsg.textContent = `Processando: ${data.current} de ${data.total} palpites (${data.progress}%)`;
-            } else {
-                statusMsg.textContent = `Processando... (${data.progress}%)`;
-            }
-        } else if (data.status === 'failed' || data.status === 'error') {
-            statusMsg.textContent = `Erro: ${data.error || 'Ocorreu um erro durante o processamento.'}`;
-            
-            // Atualizar classe da mensagem
-            if (mensagemTarefa) mensagemTarefa.className = 'alert alert-danger';
-            
-            // Mostrar botão para novo processamento
-            if (btnNovo) btnNovo.style.display = 'inline-block';
-        }
-    }
-}
-
-// Função para mostrar erro de conexão
-function mostrarErroConexao() {
-    const mensagemTarefa = document.getElementById('mensagemTarefa');
-    if (mensagemTarefa) {
-        mensagemTarefa.className = 'alert alert-danger';
-        mensagemTarefa.innerHTML = 'Erro de conexão com o servidor de atualizações em tempo real.';
-    }
-}
-
-// Processar o resultado dos palpites e exibi-los
-function processarResultadoPalpites(resultado) {
-    if (!resultado || !resultado.palpites) return;
-    
-    const palpitesDiv = document.getElementById('palpites');
-    if (!palpitesDiv) return;
-    
-    // Atualizar o total de palpites
-    document.getElementById('totalPalpites').textContent = resultado.total;
-    
-    // Exibir os palpites em uma tabela
-    const table = document.createElement("table");
-    table.className = "table table-striped";
-    
-    const thead = document.createElement("thead");
-    const headerRow = document.createElement("tr");
-    
-    // Cabeçalho numerado de 1 a 6
-    for (let i = 1; i <= 6; i++) {
-        const th = document.createElement("th");
-        th.textContent = `Nº ${i}`;
-        headerRow.appendChild(th);
-    }
-    
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
-    
-    const tbody = document.createElement("tbody");
-    
-    // Adicionar cada palpite como uma linha
-    resultado.palpites.forEach((palpite) => {
-        const row = document.createElement("tr");
-        
-        // Cada número do palpite em uma célula
-        palpite.forEach(numero => {
-            const cell = document.createElement("td");
-            cell.textContent = numero;
-            row.appendChild(cell);
-        });
-        
-        tbody.appendChild(row);
-    });
-    
-    table.appendChild(tbody);
-    palpitesDiv.innerHTML = '';
-    palpitesDiv.appendChild(table);
-    
-    // Exibir o card de palpites
-    document.getElementById("palpitesCard").style.display = "block";
-    
-    // Esconder o processamento assíncrono depois de um tempo
-    setTimeout(() => {
-        document.getElementById("processamentoAssincrono").style.display = "none";
-    }, 5000);
-}
-
-//websocket_connect.js
-// Função para conectar ao Socket.IO com tratamento de erros
-function connectWebSocket(socketUrl) {
-    try {
-        console.log("Tentando conectar ao Socket.IO:", socketUrl);
-        const socket = io(socketUrl, {
-            reconnection: true,
-            reconnectionAttempts: 5,
-            reconnectionDelay: 1000,
-            timeout: 20000
-        });
-
-        socket.on('connect', function() {
-            console.log('Conectado ao servidor Socket.IO!');
-        });
-
-        socket.on('connect_error', function(error) {
-            console.error('Erro na conexão Socket.IO:', error);
-        });
-
-        socket.on('disconnect', function() {
-            console.log('Desconectado do servidor Socket.IO');
-        });
-
-        return socket;
-    } catch (e) {
-        console.error("Erro ao inicializar Socket.IO:", e);
-        return null;
-    }
-}
+</body>
+</html>
 // scripts.js
+// Variáveis de controle para paginação
+let paginaAtual = 1;
+let totalPaginas = 1;
+let carregandoPagina = false;
+let todosOsPalpites = [];
+
+
+
 // Função para formatar número no padrão brasileiro
 function formatarNumeroParaBR(numero) {
     return numero.toLocaleString('pt-BR');
@@ -1633,23 +1077,75 @@ async function gerarPalpitesMegaSena() {
     // Obter a quantidade desejada de palpites
     const quantidadePalpites = parseInt(document.getElementById("quantidadePalpites").value);
     
-    // Mostrar um indicador de carregamento para grandes quantidades
-    if (quantidadePalpites > 50) {
-        document.getElementById("palpitesCard").style.display = "block";
-        document.getElementById("palpites").innerHTML = 
-            `<div class="alert alert-info">
-                <div class="spinner-border spinner-border-sm" role="status">
+    // Reiniciar estado de paginação
+    paginaAtual = 1;
+    totalPaginas = 1;
+    todosOsPalpites = [];
+    carregandoPagina = false;
+    
+    // Mostrar indicador de carregamento
+    document.getElementById("palpitesCard").style.display = "block";
+    document.getElementById("palpites").innerHTML = 
+        `<div class="alert alert-info">
+            <div class="spinner-border spinner-border-sm" role="status">
+                <span class="visually-hidden">Carregando...</span>
+            </div>
+            Gerando palpites (página 1)...
+        </div>`;
+    
+    // Carregar a primeira página
+    await carregarPaginaPalpites(quantidadePalpites, 1);
+    
+    // Adicionar evento de scroll para carregamento infinito
+    const palpitesContainer = document.getElementById("palpites");
+    palpitesContainer.addEventListener("scroll", function() {
+        if (!carregandoPagina && paginaAtual < totalPaginas) {
+            // Verificar se estamos próximos do fim do scroll
+            if (palpitesContainer.scrollHeight - palpitesContainer.scrollTop - palpitesContainer.clientHeight < 200) {
+                carregarProximaPagina(quantidadePalpites);
+            }
+        }
+    });
+}
+
+
+async function carregarPaginaPalpites(quantidadePalpites, pagina, itens_por_pagina = 100) {
+    try {
+        console.log("Iniciando carregamento da página", pagina);
+        carregandoPagina = true;
+        
+        // Adicionar indicador de carregamento
+        document.getElementById("paginaInfo").textContent = `Carregando página ${pagina}...`;
+        
+        if (pagina > 1) {
+            const loadingElement = document.createElement("div");
+            loadingElement.id = "carregando-mais";
+            loadingElement.className = "text-center p-3";
+            loadingElement.innerHTML = `
+                <div class="spinner-border spinner-border-sm text-primary" role="status">
                     <span class="visually-hidden">Carregando...</span>
                 </div>
-                Gerando ${quantidadePalpites} palpites. Isso pode levar alguns segundos...
-            </div>`;
-    }
-    
-    try {
-        // Adicionar um timeout maior para a requisição
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 segundos de timeout
+                <span class="ms-2">Carregando página ${pagina}...</span>
+            `;
+            document.getElementById("palpites").appendChild(loadingElement);
+        } else {
+            // Para a primeira página, mostrar indicador de carregamento no conteúdo
+            document.getElementById("palpites").innerHTML = `
+                <div class="alert alert-info" id="carregando-inicial">
+                    <div class="spinner-border spinner-border-sm" role="status">
+                        <span class="visually-hidden">Carregando...</span>
+                    </div>
+                    Gerando palpites (página 1)...
+                </div>
+            `;
+        }
         
+        // Definir um timeout para a requisição
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 segundos
+        
+        console.log("Enviando requisição para página", pagina);
+        // Fazer requisição para a API
         const response = await fetch("/gerar_palpites", {
             method: "POST",
             headers: {
@@ -1657,49 +1153,86 @@ async function gerarPalpitesMegaSena() {
             },
             body: JSON.stringify({ 
                 combinacoes: window.combinacoesGeradas,
-                quantidade: quantidadePalpites
+                quantidade: quantidadePalpites,
+                pagina: pagina,
+                itens_por_pagina: itens_por_pagina
             }),
             signal: controller.signal
         });
         
-        clearTimeout(timeoutId); // Limpar o timeout se a requisição completar antes
+        clearTimeout(timeoutId);
+        console.log("Resposta recebida:", response.status);
         
         if (!response.ok) {
-            const errorText = await response.text();
-            console.error("Erro na resposta:", response.status, errorText);
-            throw new Error(`Erro do servidor: ${response.status}`);
+            throw new Error(`Erro HTTP: ${response.status}`);
         }
         
         const data = await response.json();
+        console.log("Dados recebidos:", data);
         
-        // Exibe o total de palpites
-        document.getElementById("totalPalpites").textContent = data.total;
+        // Atualizar contadores de paginação
+        paginaAtual = data.pagina_atual || pagina;
+        totalPaginas = data.total_paginas || 1;
         
-        // Exibe os palpites
-        const palpitesDiv = document.getElementById("palpites");
-        palpitesDiv.innerHTML = "";
-        
-        // Criando tabela de palpites
-        const table = document.createElement("table");
-        table.className = "table table-striped";
-        
-        const thead = document.createElement("thead");
-        const headerRow = document.createElement("tr");
-        
-        // Cabeçalho numerado de 1 a 6
-        for (let i = 1; i <= 6; i++) {
-            const th = document.createElement("th");
-            th.textContent = `Nº ${i}`;
-            headerRow.appendChild(th);
+        // Remover indicador de carregamento
+        const carregandoElement = document.getElementById("carregando-mais");
+        if (carregandoElement) {
+            carregandoElement.remove();
         }
         
-        thead.appendChild(headerRow);
-        table.appendChild(thead);
+        const carregandoInicial = document.getElementById("carregando-inicial");
+        if (carregandoInicial) {
+            carregandoInicial.remove();
+        }
         
-        const tbody = document.createElement("tbody");
+        // Atualizar o total de palpites
+        document.getElementById("totalPalpites").textContent = data.total;
+        document.getElementById("paginaInfo").textContent = 
+            `Página ${paginaAtual} de ${totalPaginas}`;
         
-        // Adicionar cada palpite como uma linha
-        data.palpites.forEach((palpite, index) => {
+        // Adicionar novos palpites à lista
+        todosOsPalpites = todosOsPalpites.concat(data.palpites);
+        
+        // Limpar o conteúdo se for a primeira página
+        if (pagina === 1) {
+            const palpitesDiv = document.getElementById("palpites");
+            
+            // Criar tabela
+            const table = document.createElement("table");
+            table.id = "tabelaPalpites";
+            table.className = "table table-striped";
+            
+            const thead = document.createElement("thead");
+            const headerRow = document.createElement("tr");
+            
+            // Cabeçalho numerado de 1 a 6
+            for (let i = 1; i <= 6; i++) {
+                const th = document.createElement("th");
+                th.textContent = `Nº ${i}`;
+                headerRow.appendChild(th);
+            }
+            
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+            
+            // Corpo da tabela
+            const tbody = document.createElement("tbody");
+            tbody.id = "corpoPalpites";
+            table.appendChild(tbody);
+            
+            // Limpar conteúdo atual e adicionar a tabela
+            palpitesDiv.innerHTML = "";
+            palpitesDiv.appendChild(table);
+        }
+        
+        // Adicionar novos palpites à tabela
+        const tbody = document.getElementById("corpoPalpites");
+        if (!tbody) {
+            console.error("Elemento corpoPalpites não encontrado!");
+            return;
+        }
+        
+        data.palpites.forEach((palpite) => {
             const row = document.createElement("tr");
             
             // Cada número do palpite em uma célula
@@ -1712,40 +1245,59 @@ async function gerarPalpitesMegaSena() {
             tbody.appendChild(row);
         });
         
-        table.appendChild(tbody);
-        palpitesDiv.appendChild(table);
+        // Adicionar botão "Carregar Mais" se houver mais páginas
+        if (paginaAtual < totalPaginas) {
+            const loadMoreBtn = document.createElement("div");
+            loadMoreBtn.id = "carregarMaisBtn";
+            loadMoreBtn.className = "text-center p-3";
+            loadMoreBtn.innerHTML = `
+                <button class="btn btn-outline-primary" onclick="carregarProximaPagina(${quantidadePalpites})">
+                    Carregar mais palpites
+                </button>
+                <div class="text-muted small mt-1">Mostrando ${todosOsPalpites.length} de ${data.total} palpites</div>
+            `;
+            document.getElementById("palpites").appendChild(loadMoreBtn);
+        }
         
-        // Exibe o card de palpites
-        document.getElementById("palpitesCard").style.display = "block";
     } catch (error) {
-        console.error("Erro completo:", error);
+        console.error("Erro ao carregar palpites:", error);
         
-        // Mostrar uma mensagem de erro mais informativa
-        const palpitesDiv = document.getElementById("palpites");
-        palpitesDiv.innerHTML = `
-            <div class="alert alert-danger">
-                <strong>Erro ao gerar palpites:</strong> ${error.message || 'Erro de comunicação com o servidor'}
-                <hr>
-                <small>Tente reduzir o número de palpites solicitados ou tente novamente mais tarde.</small>
-            </div>
+        // Mostrar mensagem de erro
+        const errorElement = document.createElement("div");
+        errorElement.className = "alert alert-danger mt-3";
+        errorElement.innerHTML = `
+            <strong>Erro ao carregar palpites:</strong> ${error.message}
+            <button class="btn btn-sm btn-outline-danger mt-2" onclick="carregarPaginaPalpites(${quantidadePalpites}, ${pagina})">
+                Tentar novamente
+            </button>
         `;
         
-        document.getElementById("palpitesCard").style.display = "block";
+        // Remover indicador de carregamento se existir
+        const carregandoElement = document.getElementById("carregando-mais");
+        if (carregandoElement) {
+            carregandoElement.replaceWith(errorElement);
+        } else {
+            document.getElementById("palpites").appendChild(errorElement);
+        }
+    } finally {
+        carregandoPagina = false;
     }
 }
-// // Adicione este event listener para atualizar o valor exibido do slider
-// document.addEventListener("DOMContentLoaded", function() {
-//     const rangeInput = document.getElementById("quantidadePalpites");
-//     const valorSpan = document.getElementById("valorQuantidadePalpites");
-    
-//     if (rangeInput && valorSpan) {
-//         rangeInput.addEventListener("input", function() {
-//             valorSpan.textContent = this.value;
-//         });
-//     }
-// });
 
-// Adicione este event listener para atualizar o valor exibido do slider
+function carregarProximaPagina(quantidadePalpites) {
+    if (!carregandoPagina && paginaAtual < totalPaginas) {
+        // Remover botão "Carregar Mais" se existir
+        const loadMoreBtn = document.getElementById("carregarMaisBtn");
+        if (loadMoreBtn) {
+            loadMoreBtn.remove();
+        }
+        
+        // Carregar próxima página
+        carregarPaginaPalpites(quantidadePalpites, paginaAtual + 1);
+    }
+}
+
+
 document.addEventListener("DOMContentLoaded", function() {
     const rangeInput = document.getElementById("quantidadePalpites");
     const valorSpan = document.getElementById("valorQuantidadePalpites");
@@ -1991,7 +1543,9 @@ document.addEventListener("DOMContentLoaded", function() {
     const inputDigitos = document.getElementById("numeros");
     inputDigitos.setAttribute("placeholder", "ex: 0,1,2,3,4,5");
 });
-// Função para gerar palpites (modificada para suportar assíncrono)
+
+
+// Função para gerar palpites (modificada para suportar assíncrono e paginação)
 async function gerarPalpitesMegaSena() {
     // Verificar se temos combinações geradas
     if (!window.combinacoesGeradas || window.combinacoesGeradas.length === 0) {
@@ -2002,30 +1556,40 @@ async function gerarPalpitesMegaSena() {
     // Obter a quantidade desejada de palpites
     const quantidadePalpites = parseInt(document.getElementById("quantidadePalpites").value);
     
+    // Reiniciar estado de paginação
+    paginaAtual = 1;
+    totalPaginas = 1;
+    todosOsPalpites = [];
+    carregandoPagina = false;
+    
+    // Mostrar indicador de carregamento
+    document.getElementById("palpitesCard").style.display = "block";
+    
+    // Garantir que o elemento de informação de paginação existe
+    const cardHeader = document.querySelector("#palpitesCard .card-header");
+    if (!document.getElementById("paginaInfo")) {
+        const paginaInfoElement = document.createElement("div");
+        paginaInfoElement.id = "paginaInfo";
+        paginaInfoElement.className = "badge bg-light text-dark";
+        paginaInfoElement.textContent = "Carregando...";
+        cardHeader.appendChild(paginaInfoElement);
+    } else {
+        document.getElementById("paginaInfo").textContent = "Carregando...";
+    }
+    
+    // Mostrar indicador no conteúdo
+    document.getElementById("palpites").innerHTML = 
+        `<div class="alert alert-info">
+            <div class="spinner-border spinner-border-sm" role="status">
+                <span class="visually-hidden">Carregando...</span>
+            </div>
+            Gerando palpites (página 1)...
+        </div>`;
+    
     try {
-        // Mostrar indicador de carregamento para todos os casos
-        document.getElementById("palpitesCard").style.display = "block";
-        
-        // Determinar se o processamento será assíncrono ou síncrono
-        const isProcessamentoAssincrono = quantidadePalpites > 50;
-        
-        if (isProcessamentoAssincrono) {
-            // Exibir a interface de processamento assíncrono
-            document.getElementById("processamentoAssincrono").style.display = "block";
-            document.getElementById("progressoTarefa").style.width = "0%";
-            document.getElementById("statusTarefa").textContent = "Iniciando processamento...";
-            document.getElementById("mensagemTarefa").className = "alert alert-info";
-            document.getElementById("btnNovoProcessamento").style.display = "none";
-        } else {
-            // Para processamento síncrono, mostrar mensagem de carregamento
-            document.getElementById("palpites").innerHTML = 
-                `<div class="alert alert-info">
-                    <div class="spinner-border spinner-border-sm" role="status">
-                        <span class="visually-hidden">Carregando...</span>
-                    </div>
-                    Gerando ${quantidadePalpites} palpites...
-                </div>`;
-        }
+        // Adicionar um timeout maior para a requisição
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 300000);
         
         const response = await fetch("/gerar_palpites", {
             method: "POST",
@@ -2035,62 +1599,83 @@ async function gerarPalpitesMegaSena() {
             body: JSON.stringify({ 
                 combinacoes: window.combinacoesGeradas,
                 quantidade: quantidadePalpites
-            })
+            }),
+            signal: controller.signal
         });
+        
+        clearTimeout(timeoutId); // Limpar o timeout se a requisição completar antes
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Erro na resposta:", response.status, errorText);
+            throw new Error(`Erro do servidor: ${response.status}`);
+        }
         
         const data = await response.json();
         
-        if (response.ok) {
-            if (data.processamento === "assíncrono") {
-                // Processamento assíncrono - conectar ao WebSocket
-                document.getElementById("statusTarefa").textContent = 
-                    `Iniciado processamento em segundo plano. Aguarde atualizações...`;
-                
-                // Iniciar o Socket.IO e inscrever-se na tarefa
-                if (typeof initSocketIO === 'function') {
-                    const socketioUrl = document.getElementById("socketioUrl").value || "http://localhost:10001";
-                    initSocketIO(socketioUrl);
-                    subscribeToTask(data.task_id);
-                } else {
-                    // WebSocket não disponível, usar polling
-                    iniciarPolling(data.task_id);
-                }
-            } else {
-                // Processamento síncrono - exibir resultados imediatamente
-                document.getElementById("totalPalpites").textContent = data.total;
-                
-                // Exibir os palpites
-                exibirPalpites(data.palpites);
-                
-                // Esconder processamento assíncrono se estiver visível
-                document.getElementById("processamentoAssincrono").style.display = "none";
-            }
-        } else {
-            // Erro na resposta
-            const mensagem = data.erro || "Erro ao gerar palpites";
-            alert(mensagem);
-            
-            // Atualizar interface de processamento se visível
-            if (isProcessamentoAssincrono) {
-                document.getElementById("statusTarefa").textContent = `Erro: ${mensagem}`;
-                document.getElementById("mensagemTarefa").className = "alert alert-danger";
-                document.getElementById("btnNovoProcessamento").style.display = "inline-block";
-            }
-        }
-    } catch (error) {
-        // Erro de comunicação
-        alert("Erro ao comunicar com o servidor");
-        console.error(error);
+        // Exibe o total de palpites
+        document.getElementById("totalPalpites").textContent = data.total;
         
-        // Atualizar interface se necessário
-        const statusElement = document.getElementById("statusTarefa");
-        if (statusElement) {
-            statusElement.textContent = "Erro de comunicação com o servidor";
-            document.getElementById("mensagemTarefa").className = "alert alert-danger";
-            document.getElementById("btnNovoProcessamento").style.display = "inline-block";
+        // Exibe os palpites
+        const palpitesDiv = document.getElementById("palpites");
+        palpitesDiv.innerHTML = "";
+        
+        // Criando tabela de palpites
+        const table = document.createElement("table");
+        table.className = "table table-striped";
+        
+        const thead = document.createElement("thead");
+        const headerRow = document.createElement("tr");
+        
+        // Cabeçalho numerado de 1 a 6
+        for (let i = 1; i <= 6; i++) {
+            const th = document.createElement("th");
+            th.textContent = `Nº ${i}`;
+            headerRow.appendChild(th);
         }
+        
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+        
+        const tbody = document.createElement("tbody");
+        
+        // Adicionar cada palpite como uma linha
+        data.palpites.forEach((palpite, index) => {
+            const row = document.createElement("tr");
+            
+            // Cada número do palpite em uma célula
+            palpite.forEach(numero => {
+                const cell = document.createElement("td");
+                cell.textContent = numero;
+                row.appendChild(cell);
+            });
+            
+            tbody.appendChild(row);
+        });
+        
+        table.appendChild(tbody);
+        palpitesDiv.appendChild(table);
+        
+        // Exibe o card de palpites
+        document.getElementById("palpitesCard").style.display = "block";
+        
+    } catch (error) {
+        console.error("Erro completo:", error);
+        
+        // Mostrar uma mensagem de erro mais informativa
+        const palpitesDiv = document.getElementById("palpites");
+        palpitesDiv.innerHTML = `
+            <div class="alert alert-danger">
+                <strong>Erro ao gerar palpites:</strong> ${error.message || 'Erro de comunicação com o servidor'}
+                <hr>
+                <small>Tente reduzir o número de palpites solicitados ou tente novamente mais tarde.</small>
+            </div>
+        `;
+        
+        document.getElementById("palpitesCard").style.display = "block";
     }
 }
+
 
 // Função para polling (backup caso WebSockets não esteja disponível)
 function iniciarPolling(taskId) {
@@ -2174,343 +1759,202 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
-#supervisord.conf
-#Se você estiver no Windows, certifique-se também de que o arquivo de configuração do Supervisor (supervisord.conf) está ajustado corretamente para o ambiente Windows. 
-#Os caminhos no Windows usam barras invertidas (\) ou precisam ser escapados corretamente.
+function reiniciarPalpites() {
+    // Limpar estado atual
+    todosOsPalpites = [];
+    paginaAtual = 1;
+    totalPaginas = 1;
+    carregandoPagina = false;
+    
+    // Obter a quantidade de palpites atual
+    const quantidadePalpites = parseInt(document.getElementById("quantidadePalpites").value);
+    
+    // Reiniciar a visualização
+    document.getElementById("paginaInfo").textContent = "Reiniciando...";
+    document.getElementById("palpites").innerHTML = "";
+    
+    // Iniciar carregamento novamente
+    carregarPaginaPalpites(quantidadePalpites, 1);
+}
+// websocket.js
+// Gerenciamento de conexão WebSocket e atualizações de progresso
+let socket = null;
+let currentTaskId = null;
 
-
-
-pidfile=C:\\tmp\\supervisord.pid
-nodaemon=false
-minfds=1024
-minprocs=200
-
-[supervisorctl]
-serverurl=http://127.0.0.1:9001
-
-[program:flask_app]
-command=python app.py
-directory=C:\\caminho\\para\\Combinacao-I
-autostart=true
-autorestart=true
-stderr_logfile=C:\\caminho\\para\\Combinacao-I\\logs\\flask_err.log
-stdout_logfile=C:\\caminho\\para\\Combinacao-I\\logs\\flask_out.log
-
-[program:socketio_server]
-command=python socketio_server.py
-directory=C:\\caminho\\para\\Combinacao-I
-autostart=true
-autorestart=true
-stderr_logfile=C:\\caminho\\para\\Combinacao-I\\logs\\socketio_err.log
-stdout_logfile=C:\\caminho\\para\\Combinacao-I\\logs\\socketio_out.log
-
-[program:celery_worker]
-command=celery -A celery_config worker --loglevel=info
-directory=C:\\caminho\\para\\Combinacao-I
-autostart=true
-autorestart=true
-stderr_logfile=C:\\caminho\\para\\Combinacao-I\\logs\\celery_err.log
-stdout_logfile=C:\\caminho\\para\\Combinacao-I\\logs\\celery_out.log
-
-
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Combinações</title>
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
-	<script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
-	<script src="{{ url_for('static', filename='js/websocket.js') }}"></script>
-	<script src="{{ url_for('static', filename='js/websocket_connect.js') }}"></script>
-</head>
-<body>
-    <div class="container mt-5">
-        <h1 class="text-center mb-4">Calculadora de Combinações (Digitos)</h1>
-			<p>A tabela abaixo mostra quantas combinações será possível formar, conforme o total de digitos informado. </p>
-			<p>Acesso também o modal, para as combinações completas.</p>
-		<table>
-		  <thead>
-			<tr>
-			  <th>Nº de Dígitos</th>
-			  <th>Agrupamentos de 2 <small>(Concidere as dezenas gêmeas para o nº de dígitos)*</small></th>
-			  <th>Palpites (Mega Sena)</th>
-			</tr>
-		  </thead>
-		  <tbody>
-			<tr>
-			  <td>2 *</td>
-			  <td>2</td>
-			  <td>-</td>
-			</tr>
-			<tr>
-			  <td>3 *</td>
-			  <td>6</td>
-			  <td>1</td>
-			</tr>
-			<tr>
-			  <td>4 *</td>
-			  <td>12</td>
-			  <td>2</td>
-			</tr>
-			<tr>
-			  <td>5 *</td>
-			  <td>20</td>
-			  <td>3</td>
-			</tr>
-			<tr>
-			  <td>6 *</td>
-			  <td>30</td>
-			  <td>5</td>
-			</tr>
-			<tr>
-			  <td>7 *</td>
-			  <td>42</td>
-			  <td>7</td>
-			</tr>
-			<tr>
-			  <td>8 *</td>
-			  <td>56</td>
-			  <td>28</td>
-			</tr>
-			<tr>
-			  <td>9 *</td>
-			  <td>72</td>
-			  <td>84</td>
-			</tr>
-			<tr>
-			  <td>10 *</td>
-			  <td>90</td>
-			  <td>210</td>
-			</tr>
-			<tr>
-			  <td>11 *</td>
-			  <td>110</td>
-			  <td>462</td>
-			</tr>
-			<tr>
-			  <td>12 *</td>
-			  <td>132</td>
-			  <td>924</td>
-			</tr>
-            <tr>
-              <td>13 *</td>
-              <td>156</td>
-              <td>1.716</td>
-            </tr>
-            <tr>
-              <td>14 *</td>
-              <td>182</td>
-              <td>3.003</td>
-            </tr>
-            <tr>
-              <td>15 *</td>
-              <td>210</td>
-              <td>5.005</td>
-            </tr>
-            <tr>
-              <td>16 *</td>
-              <td>240</td>
-              <td>8.008</td>
-            </tr>
-            <tr>
-              <td>17 *</td>
-              <td>272</td>
-              <td>12.376</td>
-            </tr>
-            <tr>
-              <td>18 *</td>
-              <td>306</td>
-              <td>18.564</td>
-            </tr>
-            <tr>
-              <td>19 *</td>
-              <td>342</td>
-              <td>27.132</td>
-            </tr>
-            <tr>
-              <td>20 *</td>
-              <td>380</td>
-              <td>38.760</td>
-            </tr>
-		  </tbody>
-		</table>
-
-        <!-- Botão para abrir o modal com a tabela completa -->
-        <div class="text-center mt-3 mb-3">
-          <button class="btn btn-primary" onclick="abrirModal()">Ver Tabela Completa (até 60 dígitos) *</button>
-        </div>
+// Inicializar Socket.IO
+function initSocketIO(socketioUrl) {
+    if (socket) return; // Já inicializado
+    
+    try {
+        socket = io(socketioUrl);
         
-			<hr /><hr />
-<div class="card">
-    <div class="card-body">
-        <form id="formCombinacoes" onsubmit="calcularCombinacoes(event)">
-            <div class="mb-3">
-                <label for="numeros" class="form-label">Digite os números (separados por vírgula):</label>
-                <input type="text" class="form-control" id="numeros" required placeholder="ex: 1,2,0">
-                <div class="error-message" id="numerosError"></div>
-            </div>
-            
-            <div class="mb-3">
-                <label for="tamanho" class="form-label">Tamanho do agrupamento:</label>
-                <!-- O tamanho do agrupamento é fixo e não pode ser alterado -->
-                <input type="number" class="form-control" id="tamanho" value="2" readonly required>
-                <div class="error-message" id="tamanhoError"></div>
-            </div>
-            
-            <button type="submit" class="btn btn-primary">Calcular Combinações</button>
-        </form>
-    </div>
-</div>
-
-<div class="mt-4">
-		<div class="alert alert-info" id="totalCombinacoes" style="display: none;">
-			Total de Combinações: <span id="total" class="badge bg-primary fs-4">0</span>
-		</div>
-		
-		<div class="card mt-3" id="resultadoCard" style="display: none;">
-			<div class="card-header">
-				Combinações Encontradas
-			</div>
-			<div class="card-body resultado-box">
-				<div id="combinacoes"></div>
-			</div>
-		</div>
-		
-		<hr /><hr />
-
-		<div id="palpitesControle" class="card mt-3" style="display: none;">
-		  <div class="card-header bg-success text-white">
-			Gerar Palpites para Mega Sena
-		  </div>
-		  <div class="card-body">
-			<div class="row mb-2">
-			  <div class="col-12">
-				<div class="alert alert-info p-2">
-				  <small>Com estes números é possível formar até <strong id="totalTeorico">0</strong> palpites diferentes para a Mega Sena.</small>
-				</div>
-			  </div>
-			</div>
-			<div class="row align-items-center">
-			  <div class="col-md-7">
-				<label for="quantidadePalpites" class="form-label">Quantidade de palpites a gerar:</label>
-				<input type="range" class="form-range" id="quantidadePalpites" min="1" max="100" value="10">
-				<div class="d-flex justify-content-between mt-1">
-				  <span>1</span>
-				  <span class="text-center"><span id="valorQuantidadePalpites">10</span> de <span id="valorMaximo">100</span></span>
-				  <span id="maxValue">Max</span>
-				</div>
-			  </div>
-			  <div class="col-md-5">
-				<button type="button" class="btn btn-success w-100" onclick="gerarPalpitesMegaSena()">
-				  Gerar Palpites
-				</button>
-			  </div>
-			</div>
-		  </div>
-		</div>
-
-    <!-- O card de palpites permanece o mesmo -->
-    <div class="card mt-3" id="palpitesCard" style="display: none;">
-        <div class="card-header bg-success text-white">
-            Palpites para Mega Sena (Total: <span id="totalPalpites">0</span>)
-        </div>
-        <div class="card-body resultado-box">
-            <div id="palpites"></div>
-        </div>
-    </div>
-</div>
-	
-	<footer>Feito por: <i>Márcio Fernando Maia -  Todos os direitos reservado - 2025</footer>
-
-    <!-- Modal da tabela completa -->
-    <div id="modalTabelaCompleta" class="modal-tabela">
-      <div class="modal-conteudo">
-        <div class="modal-header">
-          <h2>Tabela Completa - Até 60 Dígitos</h2>
-          <span class="fechar-modal" onclick="fecharModal()">&times;</span>
-        </div>
-        <div class="table-responsive">
-          <table>
-            <thead>
-              <tr>
-                <th>Nº de Dígitos</th>
-                <th>Agrupamentos de 2</th>
-                <th>Palpites (Mega Sena)</th>
-              </tr>
-            </thead>
-            <tbody id="tabelaCompletaBody">
-              <!-- Será preenchido via JavaScript -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <input type="hidden" id="socketioUrl" value="{{ socketio_url }}">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-
-    <!-- Card para processamento assíncrono -->
-    <div class="card mt-3" id="processamentoAssincrono" style="display: none;">
-        <div class="card-header bg-info text-white">
-            Processamento em Segundo Plano
-        </div>
-        <div class="card-body">
-            <div class="progress mb-3">
-                <div id="progressoTarefa" class="progress-bar progress-bar-striped progress-bar-animated" 
-                     role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
-            
-            <div id="mensagemTarefa" class="alert alert-info">
-                <div class="spinner-border spinner-border-sm" role="status">
-                    <span class="visually-hidden">Carregando...</span>
-                </div>
-                <span id="statusTarefa">Iniciando processamento...</span>
-            </div>
-            
-            <div id="controlesTarefa">
-                <button id="btnNovoProcessamento" class="btn btn-outline-primary" style="display: none;">
-                    Iniciar Novo Processamento
-                </button>
-            </div>
-        </div>
-    </div>
-	
-	<script>
-		// Configuração do WebSocket
-		const socketioUrl = "http://" + window.location.hostname + ":10001";
-		const socket = connectWebSocket(socketioUrl);	
-	</script>
-
-    <script>
-        // Inicializar o Socket.IO quando a página carregar
-        document.addEventListener('DOMContentLoaded', function() {
-            try {
-                const socketioUrl = document.getElementById('socketioUrl').value || "http://" + window.location.hostname + ":10001";
-                console.log("Configurando conexão Socket.IO para:", socketioUrl);
-                window.socket = connectWebSocket(socketioUrl);
-            } catch (e) {
-                console.error("Erro ao configurar Socket.IO:", e);
+        socket.on('connect', () => {
+            console.log('Conectado ao servidor Socket.IO');
+            if (currentTaskId) {
+                subscribeToTask(currentTaskId);
             }
         });
-    </script>
+        
+        socket.on('connect_error', (error) => {
+            console.error('Erro de conexão Socket.IO:', error);
+            mostrarErroConexao();
+        });
+    } catch (e) {
+        console.error('Erro ao inicializar Socket.IO:', e);
+        mostrarErroConexao();
+    }
+}
 
-</body>
-</html>
+// Inscrever-se para atualizações de uma tarefa
+function subscribeToTask(taskId) {
+    if (!socket) return false;
+    
+    currentTaskId = taskId;
+    
+    // Inscrever-se no canal desta tarefa
+    socket.emit('subscribe', { task_id: taskId });
+    
+    // Definir o manipulador de eventos para esta tarefa
+    socket.on(`task_update:${taskId}`, (data) => {
+        atualizarProgressoTarefa(data);
+    });
+    
+    return true;
+}
 
+// Atualizar a interface com o progresso da tarefa
+function atualizarProgressoTarefa(data) {
+    console.log('Atualização de tarefa:', data);
+    
+    const progressBar = document.getElementById('progressoTarefa');
+    const statusMsg = document.getElementById('statusTarefa');
+    const mensagemTarefa = document.getElementById('mensagemTarefa');
+    const btnNovo = document.getElementById('btnNovoProcessamento');
+    
+    // Atualizar a barra de progresso
+    if (progressBar) {
+        progressBar.style.width = `${data.progress || 0}%`;
+        progressBar.setAttribute('aria-valuenow', data.progress || 0);
+    }
+    
+    // Atualizar mensagem de status
+    if (statusMsg) {
+        if (data.message) {
+            statusMsg.textContent = data.message;
+        } else if (data.status === 'completed') {
+            statusMsg.textContent = `Processamento concluído! Gerados ${data.total_gerado} palpites.`;
+            
+            // Mostrar os resultados
+            processarResultadoPalpites(data.result);
+            
+            // Mostrar botão para novo processamento
+            if (btnNovo) btnNovo.style.display = 'inline-block';
+            
+            // Atualizar classe da mensagem
+            if (mensagemTarefa) mensagemTarefa.className = 'alert alert-success';
+        } else if (data.status === 'processing') {
+            if (data.current && data.total) {
+                statusMsg.textContent = `Processando: ${data.current} de ${data.total} palpites (${data.progress}%)`;
+            } else {
+                statusMsg.textContent = `Processando... (${data.progress}%)`;
+            }
+        } else if (data.status === 'failed' || data.status === 'error') {
+            statusMsg.textContent = `Erro: ${data.error || 'Ocorreu um erro durante o processamento.'}`;
+            
+            // Atualizar classe da mensagem
+            if (mensagemTarefa) mensagemTarefa.className = 'alert alert-danger';
+            
+            // Mostrar botão para novo processamento
+            if (btnNovo) btnNovo.style.display = 'inline-block';
+        }
+    }
+}
 
+// Função para mostrar erro de conexão
+function mostrarErroConexao() {
+    const mensagemTarefa = document.getElementById('mensagemTarefa');
+    if (mensagemTarefa) {
+        mensagemTarefa.className = 'alert alert-danger';
+        mensagemTarefa.innerHTML = 'Erro de conexão com o servidor de atualizações em tempo real.';
+    }
+}
 
-
+// Processar o resultado dos palpites e exibi-los
+function processarResultadoPalpites(resultado) {
+    if (!resultado || !resultado.palpites) return;
+    
+    const palpitesDiv = document.getElementById('palpites');
+    if (!palpitesDiv) return;
+    
+    // Atualizar o total de palpites
+    document.getElementById('totalPalpites').textContent = resultado.total;
+    
+    // Exibir os palpites em uma tabela
+    const table = document.createElement("table");
+    table.className = "table table-striped";
+    
+    const thead = document.createElement("thead");
+    const headerRow = document.createElement("tr");
+    
+    // Cabeçalho numerado de 1 a 6
+    for (let i = 1; i <= 6; i++) {
+        const th = document.createElement("th");
+        th.textContent = `Nº ${i}`;
+        headerRow.appendChild(th);
+    }
+    
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+    
+    const tbody = document.createElement("tbody");
+    
+    // Adicionar cada palpite como uma linha
+    resultado.palpites.forEach((palpite) => {
+        const row = document.createElement("tr");
+        
+        // Cada número do palpite em uma célula
+        palpite.forEach(numero => {
+            const cell = document.createElement("td");
+            cell.textContent = numero;
+            row.appendChild(cell);
+        });
+        
+        tbody.appendChild(row);
+    });
+    
+    table.appendChild(tbody);
+    palpitesDiv.innerHTML = '';
+    palpitesDiv.appendChild(table);
+    
+    // Exibir o card de palpites
+    document.getElementById("palpitesCard").style.display = "block";
+    
+    // Esconder o processamento assíncrono depois de um tempo
+    setTimeout(() => {
+        document.getElementById("processamentoAssincrono").style.display = "none";
+    }, 5000);
+}
+/* Estilos para paginação e carregamento infinito */
 .resultado-box {
-  max-height: 300px;
-  overflow-y: auto;
-  padding: 15px;
-  word-spacing: 10px; /* Adiciona espaço extra entre os números */
-  font-family: monospace; /* Usa fonte monoespaçada para melhor alinhamento */
-  font-size: 16px; /* Tamanho de fonte adequado */
-  line-height: 2; /* Espaçamento entre linhas */
+    max-height: 500px; /* Aumente a altura máxima */
+    overflow-y: auto;
+    padding: 15px;
+    font-family: monospace;
+    font-size: 16px;
+    line-height: 2;
+    position: relative; /* Para posicionar o botão de carregar mais */
+}
+/* Botão de carregar mais */
+#carregarMaisBtn {
+    padding: 15px;
+    margin-top: 10px;
+    border-top: 1px solid #eee;
+}
+
+/* Indicador de paginação */
+#paginaInfo {
+    font-size: 0.9rem;
+    padding: 5px 10px;
 }
 
 /* Estilo para tabela Excel */
@@ -2714,434 +2158,3 @@ tbody tr:hover {
     font-style: italic;
   }
 }
-
-#.env
-FLASK_APP=app.py
-FLASK_ENV=development
-FLASK_DEBUG=1
-
-
-
-#REDIS_HOST=redis-13833.c336.samerica-east1-1.gce.redns.redis-cloud.com
-#REDIS_PORT=13833
-#REDIS_PASSWORD=B058xThhTvAbptQa0s25EAGk7A5u473O
-#REDIS_DB=0
-#FLASK_ENV=development
-#REDIS_URL=redis://default:B058xThhTvAbptQa0s25EAGk7A5u473O@redis-13833.c336.samerica-east1-1.gce.redns.redis-cloud.com:13833
-API_BASE_URL=https://loteriascaixa-api.herokuapp.com/api
-
-
-REDIS_URL=redis://default:B058xThhTvAbptQa0s25EAGk7A5u473O@redis-13833.c336.samerica-east1-1.gce.redns.redis-cloud.com:13833
-
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*.class
-
-# Environment
-.env
-venv/
-env/
-ENV/
-
-# Flask
-instance/
-.webassets-cache
-
-# Redis
-dump.rdb
-
-# Logs
-*.log
-
-# Outros
-.DS_Store
-
-
-flask==2.0.1
-python-dotenv==0.19.0
-Werkzeug==2.0.1
-numpy==1.24.3
-redis==4.5.5
-eventlet==0.39.3 
-celery==5.4.0
-Flask-SocketIO==5.5.1
-supervisor
-
-
-# instalando os 3 junstos nesta configuração deu erro..
-# celery==5.2.7 (Sugerido pelo sistema)
-# eventlet==0.33.3 (Sugerido pelo sistema)
-# flask-socketio==5.3.2 (Sugerido pelo sistema)
-
-
-
-
-
-
-#	amqp             5.3.1	
-#	bidict           0.23.1	
-#	billiard         4.2.1	
-#	celery           5.4.0	
-#	click            8.1.8	
-#	click-didyoumean 0.3.1	
-#	click-plugins    1.1.1	
-#	click-repl       0.3.0	
-#	colorama         0.4.6	
-#	dnspython        2.7.0	
-#	dotenv           0.9.9	
-#	eventlet         0.39.0	
-#	Flask            2.0.1	
-#	Flask-SocketIO   5.5.1	
-#	greenlet         3.1.1	
-#	h11              0.14.0	
-#	itsdangerous     2.2.0	
-#	Jinja2           3.1.5	
-#	kombu            5.4.2	
-#	MarkupSafe       3.0.2	
-#	numpy            2.2.3	
-#	pip              25.0.1	
-#	prompt_toolkit   3.0.50	
-#	python-dateutil  2.9.0.post0	
-#	python-dotenv    0.19.0	
-#	python-engineio  4.11.2	
-#	python-socketio  5.12.1	
-#	redis            5.2.1	
-#	setuptools       75.8.2	
-#	simple-websocket 1.1.0	
-#	six              1.17.0	
-#	supervisor       4.2.5	
-#	tzdata           2025.1	
-#	vine             5.1.0	
-#	wcwidth          0.2.13	
-#	Werkzeug         2.0.1	
-#	wsproto          1.2.0	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

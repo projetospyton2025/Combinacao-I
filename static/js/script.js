@@ -1,4 +1,12 @@
 ﻿// scripts.js
+// Variáveis de controle para paginação
+let paginaAtual = 1;
+let totalPaginas = 1;
+let carregandoPagina = false;
+let todosOsPalpites = [];
+
+
+
 // Função para formatar número no padrão brasileiro
 function formatarNumeroParaBR(numero) {
     return numero.toLocaleString('pt-BR');
@@ -259,21 +267,75 @@ async function gerarPalpitesMegaSena() {
     // Obter a quantidade desejada de palpites
     const quantidadePalpites = parseInt(document.getElementById("quantidadePalpites").value);
     
+    // Reiniciar estado de paginação
+    paginaAtual = 1;
+    totalPaginas = 1;
+    todosOsPalpites = [];
+    carregandoPagina = false;
+    
+    // Mostrar indicador de carregamento
+    document.getElementById("palpitesCard").style.display = "block";
+    document.getElementById("palpites").innerHTML = 
+        `<div class="alert alert-info">
+            <div class="spinner-border spinner-border-sm" role="status">
+                <span class="visually-hidden">Carregando...</span>
+            </div>
+            Gerando palpites (página 1)...
+        </div>`;
+    
+    // Carregar a primeira página
+    await carregarPaginaPalpites(quantidadePalpites, 1);
+    
+    // Adicionar evento de scroll para carregamento infinito
+    const palpitesContainer = document.getElementById("palpites");
+    palpitesContainer.addEventListener("scroll", function() {
+        if (!carregandoPagina && paginaAtual < totalPaginas) {
+            // Verificar se estamos próximos do fim do scroll
+            if (palpitesContainer.scrollHeight - palpitesContainer.scrollTop - palpitesContainer.clientHeight < 200) {
+                carregarProximaPagina(quantidadePalpites);
+            }
+        }
+    });
+}
+
+
+async function carregarPaginaPalpites(quantidadePalpites, pagina, itens_por_pagina = 100) {
     try {
-        console.log("Iniciando requisição para gerar palpites...");
-        console.log("Combinações:", window.combinacoesGeradas.length);
-        console.log("Quantidade:", quantidadePalpites);
+        console.log("Iniciando carregamento da página", pagina);
+        carregandoPagina = true;
         
-        // Mostrar indicador de carregamento
-        document.getElementById("palpitesCard").style.display = "block";
-        document.getElementById("palpites").innerHTML = 
-            `<div class="alert alert-info">
-                <div class="spinner-border spinner-border-sm" role="status">
+        // Adicionar indicador de carregamento
+        document.getElementById("paginaInfo").textContent = `Carregando página ${pagina}...`;
+        
+        if (pagina > 1) {
+            const loadingElement = document.createElement("div");
+            loadingElement.id = "carregando-mais";
+            loadingElement.className = "text-center p-3";
+            loadingElement.innerHTML = `
+                <div class="spinner-border spinner-border-sm text-primary" role="status">
                     <span class="visually-hidden">Carregando...</span>
                 </div>
-                Gerando ${quantidadePalpites} palpites. Isso pode levar alguns segundos...
-            </div>`;
+                <span class="ms-2">Carregando página ${pagina}...</span>
+            `;
+            document.getElementById("palpites").appendChild(loadingElement);
+        } else {
+            // Para a primeira página, mostrar indicador de carregamento no conteúdo
+            document.getElementById("palpites").innerHTML = `
+                <div class="alert alert-info" id="carregando-inicial">
+                    <div class="spinner-border spinner-border-sm" role="status">
+                        <span class="visually-hidden">Carregando...</span>
+                    </div>
+                    Gerando palpites (página 1)...
+                </div>
+            `;
+        }
         
+        // Definir um timeout para a requisição
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 segundos
+        
+        console.log("Enviando requisição para página", pagina);
+        // Fazer requisição para a API
         const response = await fetch("/gerar_palpites", {
             method: "POST",
             headers: {
@@ -281,50 +343,91 @@ async function gerarPalpitesMegaSena() {
             },
             body: JSON.stringify({ 
                 combinacoes: window.combinacoesGeradas,
-                quantidade: quantidadePalpites
-            })
+                quantidade: quantidadePalpites,
+                pagina: pagina,
+                itens_por_pagina: itens_por_pagina
+            }),
+            signal: controller.signal
         });
         
+        clearTimeout(timeoutId);
         console.log("Resposta recebida:", response.status);
         
         if (!response.ok) {
-            console.error("Erro HTTP:", response.status, response.statusText);
-            const errorText = await response.text();
-            console.error("Texto do erro:", errorText);
-            throw new Error(`Erro HTTP: ${response.status} - ${errorText}`);
+            throw new Error(`Erro HTTP: ${response.status}`);
         }
         
         const data = await response.json();
         console.log("Dados recebidos:", data);
         
-        // Exibe o total de palpites
-        document.getElementById("totalPalpites").textContent = data.total;
+        // Atualizar contadores de paginação
+        paginaAtual = data.pagina_atual || pagina;
+        totalPaginas = data.total_paginas || 1;
         
-        // Exibe os palpites
-        const palpitesDiv = document.getElementById("palpites");
-        palpitesDiv.innerHTML = "";
-        
-        // Criando tabela de palpites
-        const table = document.createElement("table");
-        table.className = "table table-striped";
-        
-        const thead = document.createElement("thead");
-        const headerRow = document.createElement("tr");
-        
-        // Cabeçalho numerado de 1 a 6
-        for (let i = 1; i <= 6; i++) {
-            const th = document.createElement("th");
-            th.textContent = `Nº ${i}`;
-            headerRow.appendChild(th);
+        // Remover indicador de carregamento
+        const carregandoElement = document.getElementById("carregando-mais");
+        if (carregandoElement) {
+            carregandoElement.remove();
         }
         
-        thead.appendChild(headerRow);
-        table.appendChild(thead);
+        const carregandoInicial = document.getElementById("carregando-inicial");
+        if (carregandoInicial) {
+            carregandoInicial.remove();
+        }
         
-        const tbody = document.createElement("tbody");
+        // Atualizar o total de palpites
         
-        // Adicionar cada palpite como uma linha
-        data.palpites.forEach((palpite, index) => {
+		// document.getElementById("totalPalpites").textContent = data.total;
+		
+		// Exibe o total de palpites formatado no padrão brasileiro
+		document.getElementById("totalPalpites").textContent = formatarNumeroParaBR(data.total);
+        
+		//document.getElementById("paginaInfo").textContent = `Página ${paginaAtual} de ${totalPaginas}`;
+		atualizarStatusPaginacao(`Página ${paginaAtual} de ${totalPaginas}`);
+        
+        // Adicionar novos palpites à lista
+        todosOsPalpites = todosOsPalpites.concat(data.palpites);
+        
+        // Limpar o conteúdo se for a primeira página
+        if (pagina === 1) {
+            const palpitesDiv = document.getElementById("palpites");
+            
+            // Criar tabela
+            const table = document.createElement("table");
+            table.id = "tabelaPalpites";
+            table.className = "table table-striped";
+            
+            const thead = document.createElement("thead");
+            const headerRow = document.createElement("tr");
+            
+            // Cabeçalho numerado de 1 a 6
+            for (let i = 1; i <= 6; i++) {
+                const th = document.createElement("th");
+                th.textContent = `Nº ${i}`;
+                headerRow.appendChild(th);
+            }
+            
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+            
+            // Corpo da tabela
+            const tbody = document.createElement("tbody");
+            tbody.id = "corpoPalpites";
+            table.appendChild(tbody);
+            
+            // Limpar conteúdo atual e adicionar a tabela
+            palpitesDiv.innerHTML = "";
+            palpitesDiv.appendChild(table);
+        }
+        
+        // Adicionar novos palpites à tabela
+        const tbody = document.getElementById("corpoPalpites");
+        if (!tbody) {
+            console.error("Elemento corpoPalpites não encontrado!");
+            return;
+        }
+        
+        data.palpites.forEach((palpite) => {
             const row = document.createElement("tr");
             
             // Cada número do palpite em uma célula
@@ -337,27 +440,59 @@ async function gerarPalpitesMegaSena() {
             tbody.appendChild(row);
         });
         
-        table.appendChild(tbody);
-        palpitesDiv.appendChild(table);
+        // Adicionar botão "Carregar Mais" se houver mais páginas
+        if (paginaAtual < totalPaginas) {
+            const loadMoreBtn = document.createElement("div");
+            loadMoreBtn.id = "carregarMaisBtn";
+            loadMoreBtn.className = "text-center p-3";
+            loadMoreBtn.innerHTML = `
+                <button class="btn btn-outline-primary" onclick="carregarProximaPagina(${quantidadePalpites})">
+                    Carregar mais palpites
+                </button>
+                <div class="text-muted small mt-1">Mostrando ${todosOsPalpites.length} de ${data.total} palpites</div>
+            `;
+            document.getElementById("palpites").appendChild(loadMoreBtn);
+        }
+        
     } catch (error) {
-        console.error("Erro completo:", error);
-        alert("Erro ao comunicar com o servidor: " + error.message);
+        console.error("Erro ao carregar palpites:", error);
+        
+        // Mostrar mensagem de erro
+        const errorElement = document.createElement("div");
+        errorElement.className = "alert alert-danger mt-3";
+        errorElement.innerHTML = `
+            <strong>Erro ao carregar palpites:</strong> ${error.message}
+            <button class="btn btn-sm btn-outline-danger mt-2" onclick="carregarPaginaPalpites(${quantidadePalpites}, ${pagina})">
+                Tentar novamente
+            </button>
+        `;
+        
+        // Remover indicador de carregamento se existir
+        const carregandoElement = document.getElementById("carregando-mais");
+        if (carregandoElement) {
+            carregandoElement.replaceWith(errorElement);
+        } else {
+            document.getElementById("palpites").appendChild(errorElement);
+        }
+    } finally {
+        carregandoPagina = false;
     }
 }
 
-// // Adicione este event listener para atualizar o valor exibido do slider
-// document.addEventListener("DOMContentLoaded", function() {
-//     const rangeInput = document.getElementById("quantidadePalpites");
-//     const valorSpan = document.getElementById("valorQuantidadePalpites");
-    
-//     if (rangeInput && valorSpan) {
-//         rangeInput.addEventListener("input", function() {
-//             valorSpan.textContent = this.value;
-//         });
-//     }
-// });
+function carregarProximaPagina(quantidadePalpites) {
+    if (!carregandoPagina && paginaAtual < totalPaginas) {
+        // Remover botão "Carregar Mais" se existir
+        const loadMoreBtn = document.getElementById("carregarMaisBtn");
+        if (loadMoreBtn) {
+            loadMoreBtn.remove();
+        }
+        
+        // Carregar próxima página
+        carregarPaginaPalpites(quantidadePalpites, paginaAtual + 1);
+    }
+}
 
-// Adicione este event listener para atualizar o valor exibido do slider
+
 document.addEventListener("DOMContentLoaded", function() {
     const rangeInput = document.getElementById("quantidadePalpites");
     const valorSpan = document.getElementById("valorQuantidadePalpites");
@@ -605,7 +740,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 
-// Função para gerar palpites (modificada para suportar assíncrono)
+// Função para gerar palpites (modificada para suportar assíncrono e paginação)
 async function gerarPalpitesMegaSena() {
     // Verificar se temos combinações geradas
     if (!window.combinacoesGeradas || window.combinacoesGeradas.length === 0) {
@@ -616,24 +751,38 @@ async function gerarPalpitesMegaSena() {
     // Obter a quantidade desejada de palpites
     const quantidadePalpites = parseInt(document.getElementById("quantidadePalpites").value);
     
-    // Mostrar um indicador de carregamento para grandes quantidades
-    if (quantidadePalpites > 50) {
-        document.getElementById("palpitesCard").style.display = "block";
-        document.getElementById("palpites").innerHTML = 
-            `<div class="alert alert-info">
-                <div class="spinner-border spinner-border-sm" role="status">
-                    <span class="visually-hidden">Carregando...</span>
-                </div>
-                Gerando ${quantidadePalpites} palpites. Isso pode levar alguns segundos...
-            </div>`;
+    // Reiniciar estado de paginação
+    paginaAtual = 1;
+    totalPaginas = 1;
+    todosOsPalpites = [];
+    carregandoPagina = false;
+    
+    // Mostrar indicador de carregamento
+    document.getElementById("palpitesCard").style.display = "block";
+    
+    // Garantir que o elemento de informação de paginação existe
+    const cardHeader = document.querySelector("#palpitesCard .card-header");
+    if (!document.getElementById("paginaInfo")) {
+        const paginaInfoElement = document.createElement("div");
+        paginaInfoElement.id = "paginaInfo";
+        paginaInfoElement.className = "badge bg-light text-dark";
+        paginaInfoElement.textContent = "Carregando...";
+        cardHeader.appendChild(paginaInfoElement);
+    } else {
+        document.getElementById("paginaInfo").textContent = "Carregando...";
     }
+    
+    // Mostrar indicador no conteúdo
+    document.getElementById("palpites").innerHTML = 
+        `<div class="alert alert-info">
+            <div class="spinner-border spinner-border-sm" role="status">
+                <span class="visually-hidden">Carregando...</span>
+            </div>
+            Gerando palpites (página 1)...
+        </div>`;
     
     try {
         // Adicionar um timeout maior para a requisição
-        //const controller = new AbortController();
-        //const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 segundos de timeout
-
-        // No código do cliente, aumente o timeout para 5 minutos (300000 ms)
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 300000);
         
@@ -704,6 +853,7 @@ async function gerarPalpitesMegaSena() {
         
         // Exibe o card de palpites
         document.getElementById("palpitesCard").style.display = "block";
+        
     } catch (error) {
         console.error("Erro completo:", error);
         
@@ -803,3 +953,27 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 });
+
+function reiniciarPalpites() {
+    // Limpar estado atual
+    todosOsPalpites = [];
+    paginaAtual = 1;
+    totalPaginas = 1;
+    carregandoPagina = false;
+    
+    // Obter a quantidade de palpites atual
+    const quantidadePalpites = parseInt(document.getElementById("quantidadePalpites").value);
+    
+    // Reiniciar a visualização
+    document.getElementById("paginaInfo").textContent = "Reiniciando...";
+    document.getElementById("palpites").innerHTML = "";
+    
+    // Iniciar carregamento novamente
+    carregarPaginaPalpites(quantidadePalpites, 1);
+}
+function atualizarStatusPaginacao(mensagem) {
+    const paginaInfoElement = document.getElementById("paginaInfo");
+    if (paginaInfoElement) {
+        paginaInfoElement.textContent = mensagem;
+    }
+}

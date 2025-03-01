@@ -122,56 +122,6 @@
 		  </tbody>
 		</table>
 		
-		<table border="1">
-		  <thead>
-			<tr>
-			  <th>Quantidade de Dígitos</th>
-			  <th>Combinações Possíveis</th>
-			</tr>
-		  </thead>
-		  <tbody>
-			<tr>
-			  <td>1</td>
-			  <td>10 (0 a 9)</td>
-			</tr>
-			<tr>
-			  <td>2</td>
-			  <td>100 (10²)</td>
-			</tr>
-			<tr>
-			  <td>3</td>
-			  <td>1.000 (10³)</td>
-			</tr>
-			<tr>
-			  <td>4</td>
-			  <td>10.000 (10⁴)</td>
-			</tr>
-			<tr>
-			  <td>5</td>
-			  <td>100.000 (10⁵)</td>
-			</tr>
-			<tr>
-			  <td>6</td>
-			  <td>1.000.000 (10⁶)</td>
-			</tr>
-			<tr>
-			  <td>7</td>
-			  <td>10.000.000 (10⁷)</td>
-			</tr>
-			<tr>
-			  <td>8</td>
-			  <td>100.000.000 (10⁸)</td>
-			</tr>
-			<tr>
-			  <td>9</td>
-			  <td>1.000.000.000 (10⁹)</td>
-			</tr>
-			<tr>
-			  <td>10</td>
-			  <td>10.000.000.000 (10¹⁰)</td>
-			</tr>
-		  </tbody>
-		</table>
 
 
         <!-- Botão para abrir o modal com a tabela completa -->
@@ -179,6 +129,59 @@
           <button class="btn btn-primary" onclick="abrirModal()">Ver Tabela Completa (até 60 dígitos) *</button>
         </div>
         
+<hr /><hr />
+<table>
+	<thead>
+	  <tr>
+		<th>Quantidade de Dígitos</th>
+		<th>Combinações Possíveis</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  <tr>
+		<td>1</td>
+		<td>(0 a 9) 10 </td>
+	  </tr>
+	  <tr>
+		<td>2</td>
+		<td>(10²) 100 </td>
+	  </tr>
+	  <tr>
+		<td>3</td>
+		<td>(10³) 1.000 </td>
+	  </tr>
+	  <tr>
+		<td>4</td>
+		<td>(10⁴) 10.000</td>
+	  </tr>
+	  <tr>
+		<td>5</td>
+		<td>(10⁵) 100.000</td>
+	  </tr>
+	  <tr>
+		<td>6</td>
+		<td>(10⁶) 1.000.000</td>
+	  </tr>
+	  <tr>
+		<td>7</td>
+		<td>(10⁷) 10.000.000</td>
+	  </tr>
+	  <tr>
+		<td>8</td>
+		<td>(10⁸) 100.000.000</td>
+	  </tr>
+	  <tr>
+		<td>9</td>
+		<td>(10⁹) 1.000.000.000</td>
+	  </tr>
+	  <tr>
+		<td>10</td>
+		<td>(10¹⁰) 10.000.000.000</td>
+	  </tr>
+	</tbody>
+  </table>
+
+
 			<hr /><hr />
 <div class="card">
     <div class="card-body">
@@ -248,15 +251,22 @@
 		  </div>
 		</div>
 
-    <!-- O card de palpites permanece o mesmo -->
-    <div class="card mt-3" id="palpitesCard" style="display: none;">
-        <div class="card-header bg-success text-white">
-            Palpites para Mega Sena (Total: <span id="totalPalpites">0</span>)
-        </div>
-        <div class="card-body resultado-box">
-            <div id="palpites"></div>
-        </div>
-    </div>
+
+	<!-- O card de palpites com suporte a paginação -->
+	<div class="card mt-3" id="palpitesCard" style="display: none;">
+		<div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+			<div>Palpites para Mega Sena (Total: <span id="totalPalpites">0</span>)</div>
+			<div id="paginaInfo" class="badge bg-light text-dark">Página 0 de 0</div>
+		</div>
+		<div class="card-body resultado-box">
+			<div id="palpites"></div>
+		</div>
+	</div>
+	
+	
+	
+	
+	
 </div>
 	
 	<footer>Feito por: <i>Márcio Fernando Maia -  Todos os direitos reservado - 2025</footer>

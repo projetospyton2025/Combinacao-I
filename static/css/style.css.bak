@@ -1,24 +1,11 @@
-﻿/* Estilos para paginação e carregamento infinito */
-.resultado-box {
-    max-height: 500px; /* Aumente a altura máxima */
-    overflow-y: auto;
-    padding: 15px;
-    font-family: monospace;
-    font-size: 16px;
-    line-height: 2;
-    position: relative; /* Para posicionar o botão de carregar mais */
-}
-/* Botão de carregar mais */
-#carregarMaisBtn {
-    padding: 15px;
-    margin-top: 10px;
-    border-top: 1px solid #eee;
-}
-
-/* Indicador de paginação */
-#paginaInfo {
-    font-size: 0.9rem;
-    padding: 5px 10px;
+﻿.resultado-box {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 15px;
+  word-spacing: 10px; /* Adiciona espaço extra entre os números */
+  font-family: monospace; /* Usa fonte monoespaçada para melhor alinhamento */
+  font-size: 16px; /* Tamanho de fonte adequado */
+  line-height: 2; /* Espaçamento entre linhas */
 }
 
 /* Estilo para tabela Excel */
