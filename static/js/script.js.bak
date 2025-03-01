@@ -376,9 +376,14 @@ async function carregarPaginaPalpites(quantidadePalpites, pagina, itens_por_pagi
         }
         
         // Atualizar o total de palpites
-        document.getElementById("totalPalpites").textContent = data.total;
-        document.getElementById("paginaInfo").textContent = 
-            `Página ${paginaAtual} de ${totalPaginas}`;
+        
+		// document.getElementById("totalPalpites").textContent = data.total;
+		
+		// Exibe o total de palpites formatado no padrão brasileiro
+		document.getElementById("totalPalpites").textContent = formatarNumeroParaBR(data.total);
+        
+		//document.getElementById("paginaInfo").textContent = `Página ${paginaAtual} de ${totalPaginas}`;
+		atualizarStatusPaginacao(`Página ${paginaAtual} de ${totalPaginas}`);
         
         // Adicionar novos palpites à lista
         todosOsPalpites = todosOsPalpites.concat(data.palpites);
@@ -965,4 +970,10 @@ function reiniciarPalpites() {
     
     // Iniciar carregamento novamente
     carregarPaginaPalpites(quantidadePalpites, 1);
+}
+function atualizarStatusPaginacao(mensagem) {
+    const paginaInfoElement = document.getElementById("paginaInfo");
+    if (paginaInfoElement) {
+        paginaInfoElement.textContent = mensagem;
+    }
 }
